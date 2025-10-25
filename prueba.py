@@ -1,4 +1,5 @@
 import os
+import json
 from google import genai
 from google.genai import types
 
@@ -11,7 +12,7 @@ api_key = os.environ.get('GENAI_API_KEY')
 
 client = genai.Client(api_key=api_key)
 
-image_path = './ticket-supreme-1.jpg'
+image_path = './2971_6518_3.jpg'
 if not os.path.exists(image_path):
     raise FileNotFoundError(f"Image not found at {image_path}. Place the image in the project folder or update the path.")
 
@@ -20,10 +21,44 @@ with open(image_path, 'rb') as f:
 
 try:
     prompt = (
-        "Extrae la información del recibo y devuelve SOLO un objeto JSON válido (sin texto adicional). "
-        "El JSON debe tener la estructura: {\n  \"store\": string, \n  \"address\": string|null, \n  \"date\": string (YYYY-MM-DD)|null,\n  \"time\": string (HH:MM:SS)|null,\n  \"currency\": string|null,\n  \"items\": [ {\"line\": number|null, \"item_code\": string|null, \"description\": string|null, \"quantity\": number|null, \"unit_price\": number|null, \"total_price\": number|null, \"category\": string|null } ],\n  \"summary\": { \"units\": number|null, \"subtotal\": number|null, \"vat_percent\": number|null, \"vat_amount\": number|null, \"total\": number|null }\n}. "
-        "Clasifica cada artículo en una categoría general (ej.: clothing, accessories, footwear, other). "
-        "Si algún campo no puede inferirse, usa null. No incluyas explicaciones, solo el JSON.")
+        "Extrae la información del recibo y DEVUELVE SOLO un JSON VÁLIDO (sin texto adicional).\n"
+        "Estructura requerida (usar null cuando aplique):\n"
+        "{\n"
+        "  \"store\": string,\n"
+        "  \"address\": string|null,\n"
+        "  \"date\": string (YYYY-MM-DD)|null,\n"
+        "  \"time\": string (HH:MM:SS)|null,\n"
+        "  \"currency\": string|null,\n"
+        "  \"items\": [\n"
+        "    {\n"
+        "      \"line\": number|null,\n"
+        "      \"item_code\": string|null,\n"
+        "      \"description\": string|null,\n"
+        "      \"quantity\": number|null,\n"
+        "      \"unit_price\": number|null,\n"
+        "      \"total_price\": number|null,\n"
+        "      \"category\": string|null,\n"
+        "      \"is_hormiga\": boolean,\n"
+        "      \"tipo_hormiga\": string|null\n"
+        "    }\n"
+        "  ],\n"
+        "  \"summary\": {\n"
+        "    \"units\": number|null,\n"
+        "    \"subtotal\": number|null,\n"
+        "    \"vat_percent\": number|null,\n"
+        "    \"vat_amount\": number|null,\n"
+        "    \"total\": number|null,\n"
+        "    \"total_hormiga\": number|null,\n"
+        "    \"total_no_hormiga\": number|null\n"
+        "  }\n"
+        "}\n\n"
+        "Clasifica cada artículo en una categoría general y determina si es un gasto hormiga (is_hormiga: true) o no (false).\n"
+        "Tipos de gastos hormiga posibles (usar exactamente estas etiquetas cuando correspondan):\n"
+        "Comida, Bebidas, Suscripciones, Pequeños pagos, Propinas, Estacionamientos, Comisiones por pago de servicio, Retiro de cajero de otros bancos, Transporte, Gasolina, Uber. O cualquier otro que entre en este tipo de concepto y categoria\n\n"
+        "Además: si is_hormiga=true, llenar \"tipo_hormiga\" con una de las etiquetas anteriores; si is_hormiga=false, \"tipo_hormiga\" debe ser null.\n"
+        "Contexto: los \"gastos hormiga\" son pequeños gastos diarios que parecen insignificantes, pero al acumularse representan una pérdida importante de dinero y afectan el ahorro personal..\n"
+        "Reglas: DEVUELVE SOLO EL JSON (sin texto adicional). Si algún dato no puede inferirse, ponga null. Asegúrate de que el JSON sea perfectamente parseable."
+    )
 
     response = client.models.generate_content(
         model='gemini-2.5-flash',
@@ -40,8 +75,23 @@ except Exception as e:
     print("Check your GENAI_API_KEY, network connectivity, and project quotas.")
     raise
 
-# Safely print the response (some client versions provide .text, others may differ)
+# Safely get the response text (some client versions provide .text, others may differ)
 if hasattr(response, 'text'):
-    print(response.text)
+    text = response.text
 else:
-    print(response)
+    text = str(response)
+
+# Try to parse and pretty-print/save the JSON
+try:
+    parsed = json.loads(text)
+    pretty = json.dumps(parsed, ensure_ascii=False, indent=2)
+    print(pretty)
+    # Save to output.json
+    with open('output.json', 'w', encoding='utf-8') as out_f:
+        out_f.write(pretty)
+    print('\nSaved parsed JSON to output.json')
+except Exception as ex:
+    print('\nFailed to parse API response as JSON:')
+    print(repr(ex))
+    print('\nRaw response was:\n')
+    print(text)
