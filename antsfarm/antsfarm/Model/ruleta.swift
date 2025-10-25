@@ -18,13 +18,13 @@ struct RouletteItem: Identifiable {
 class RouletteData {
     static let items: [RouletteItem] = [
         // Mezclados para que no estén todos juntos
-        RouletteItem(title: "Nothing", color: CategoryColors.subscriptions, probability: 5),
-        RouletteItem(title: "Try Again", color: CategoryColors.drinks, probability: 3),
-        RouletteItem(title: "Nothing", color: CategoryColors.subscriptions, probability: 5),
+        RouletteItem(title: "+1 leaf 🍃", color: CategoryColors.subscriptions, probability: 5),
+        RouletteItem(title: "Try Again", color: CategoryColors.drinks, probability: 5),
+        RouletteItem(title: "+5 leaves 🍃", color: CategoryColors.subscriptions, probability: 2),
         RouletteItem(title: "New Ant! 🐜", color: CategoryColors.food, probability: 2),
-        RouletteItem(title: "Nothing", color: CategoryColors.subscriptions, probability: 5),
+        RouletteItem(title: "+5 leaves 🍃", color: CategoryColors.subscriptions, probability: 2),
         RouletteItem(title: "Try Again", color: CategoryColors.drinks, probability: 3),
-        RouletteItem(title: "Nothing", color: CategoryColors.subscriptions, probability: 5),
+        RouletteItem(title: "+1 leaves 🍃", color: CategoryColors.subscriptions, probability: 5),
         RouletteItem(title: "Try Again", color: CategoryColors.drinks, probability: 3),
         RouletteItem(title: "New Ant! 🐜", color: CategoryColors.food, probability: 2),
     ]

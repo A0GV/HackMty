@@ -11,6 +11,8 @@ struct FortuneWheelView: View {
     @State private var rotationAngle: Double = 0
     @State private var isSpinning = false
     @State private var result: String = ""
+    @State public var numLeaves: Int = 0 // How many leaves the user has, will pull from api later on
+    @State private var spinAlert: Bool = false // Checks if the user can actually spin the wheel or not; will change to true if not enough leaves to play
     
     let items = RouletteData.items
     let wedgeAngle: Double
@@ -23,7 +25,7 @@ struct FortuneWheelView: View {
         VStack(spacing: 30) {
             // Indicador (flecha apuntando hacia abajo) - ARRIBA de la ruleta
             Triangle()
-                .fill(Color.red)
+                .fill(CategoryColors.principal)
                 .frame(width: 30, height: 40)
                 .shadow(radius: 3)
             
@@ -45,7 +47,7 @@ struct FortuneWheelView: View {
                         )
                     }
                     
-                    // Textos horizontales - como en la imagen de referencia
+                    // Textos horizontales
                     ForEach(0..<items.count, id: \.self) { index in
                         let angle = wedgeAngle * Double(index) + wedgeAngle / 2
                         
@@ -87,6 +89,16 @@ struct FortuneWheelView: View {
             }
             .disabled(isSpinning)
             
+            // Mention prices
+            Text("Cost: 50 leaves")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(CategoryColors.secondaryRed)
+            
+            // Alert if do not have enough leaves to play
+            .alert("Not enough leaves, keep logging in!", isPresented: $spinAlert) {
+                Button("Understood") {}
+            }
+            
             // Resultado
             if !result.isEmpty {
                 Text(result)
@@ -98,12 +110,14 @@ struct FortuneWheelView: View {
                     .shadow(radius: 5)
             }
         }
-        .padding(.top, 50)
+        //.padding(.top, 50)
     }
     
+    // Spin the wheel
     func spinWheel() {
         guard !isSpinning else { return }
         
+        //
         isSpinning = true
         result = ""
         
