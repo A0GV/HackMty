@@ -8,13 +8,23 @@
 import SwiftUI
 
 struct goals: View {
-    @State public var weeklyBudget: Double = 0
     @State public var foodAmt: Double = 0
     @State public var drinkAmt: Double = 0
     @State public var subsAmt: Double = 0
     @State public var smallPayAmt: Double = 0
     @State public var transportAmt: Double = 0
     @State public var otherAmt: Double = 0
+    
+    // Calculated weekly total
+    @State public var weeklyBudget: Double = 0 //foodAmt + drinkAmt + subsAmt + smallPayAmt + transportAmt + otherAmt
+    
+    // Calculates user total budget
+    func loadBudget() {
+        // Load user data from api
+        
+        // Calc weekly budget total
+        weeklyBudget = foodAmt + drinkAmt + subsAmt + smallPayAmt + transportAmt + otherAmt
+    }
     
     var body: some View {
         ScrollView {
@@ -71,6 +81,8 @@ struct goals: View {
                 // Submit button to update goal amts, change action later on
                 Button("Update Goals") {
                     print("Updated goals: food: \(foodAmt), drinks: \(drinkAmt), subscriptions: \(subsAmt), small payment: \(smallPayAmt), transport: \(transportAmt), other: \(otherAmt)")
+                    // API call update in DB
+                    loadBudget() // Updates user budget
                 }
                 .font(.system(size: 25))
                 .padding(10)
@@ -78,6 +90,9 @@ struct goals: View {
                 .background(CategoryColors.principal)
                 .cornerRadius(10)
                 .foregroundStyle(.white)
+            }
+            .onAppear() {
+                loadBudget() // Gets user info and updates the weekly budget
             }
         }
     }
