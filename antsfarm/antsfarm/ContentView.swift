@@ -19,7 +19,7 @@ struct ContentView: View {
                     .tabItem {
                         Label("Farm", systemImage: "ant")
                     }
-                Dashboard()
+                dashboard()
                     .tabItem {
                         Label("Dashboard", systemImage: "target")
                     }

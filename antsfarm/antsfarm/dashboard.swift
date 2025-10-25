@@ -9,7 +9,7 @@ struct Expense: Identifiable {
     let label: String
 }
 
-struct Dashboard: View {
+struct dashboard: View {
     let expenses: [Expense] = [
         Expense(color: Color(hex: "#C33B47"), value: 100, expected: 100, label: "A"),
         Expense(color: Color(hex: "#4974C3"), value: 80, expected: 120, label: "B"),
@@ -127,5 +127,5 @@ extension Color {
 
 // Preview
 #Preview {
-    Dashboard()
+    dashboard()
 }
