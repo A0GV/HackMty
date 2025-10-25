@@ -10,9 +10,22 @@
 		730AEE692EAD2DE100885A7F /* antsfarm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = antsfarm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		917A103C2EAD56580057AD07 /* Exceptions for "antsfarm" folder in "antsfarm" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 730AEE682EAD2DE100885A7F /* antsfarm */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		730AEE6B2EAD2DE100885A7F /* antsfarm */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				917A103C2EAD56580057AD07 /* Exceptions for "antsfarm" folder in "antsfarm" target */,
+			);
 			path = antsfarm;
 			sourceTree = "<group>";
 		};
@@ -253,6 +266,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = antsfarm/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app use the camera to take pictures to the tickets";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -280,6 +295,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = antsfarm/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app use the camera to take pictures to the tickets";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
