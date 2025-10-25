@@ -23,9 +23,10 @@ struct ContentView: View {
                     .tabItem {
                         Label("Dashboard", systemImage: "target")
                     }
-            }.tint(.purple)
+            }.tint(CategoryColors.principal)
         }
-        .padding()
+        
+        //.padding()
     }
 }
 
