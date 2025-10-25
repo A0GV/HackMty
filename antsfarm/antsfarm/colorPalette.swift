@@ -9,7 +9,11 @@ import Foundation
 import SwiftUI
 
 struct CategoryColors {
+    // Reds
     static let principal = Color(red: 104/255, green: 58/255, blue: 52/255)
+    static let secondaryRed = Color(red: 67/255, green: 27/255, blue: 23/255)
+    
+    // Categories
     static let food = Color(red: 184/255, green: 55/255, blue: 72/255)
     static let drinks = Color(red: 55/255, green: 111/255, blue: 184/255)
     static let subscriptions = Color(red: 141/255, green: 55/255, blue: 184/255)
