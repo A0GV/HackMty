@@ -19,12 +19,16 @@ struct Login: View {
                Spacer().frame(height: 28)
 
                // Logo (opcional)
-               Image("ant_pixel")
+               Image("Ant killer")
                    .resizable()
                    .scaledToFit()
-                   .frame(width: 100, height: 100)
+                   .frame(width: 244)
                    .padding(.top, 4)
-
+               
+               Image("notant")
+                   .resizable()
+                   .scaledToFit()
+                   .frame(width: 300)
                // Saludo
                Text("Hi, there!")
                    .font(.system(size: 28, weight: .regular))
