@@ -9,10 +9,28 @@ import SwiftUI
 
 struct farm: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack {
+            GeometryReader { geometry in
+                VStack(spacing: 0) {
+                    Image("fonfo")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: geometry.size.height / 2)
+                    
+                    Image("fonfo")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: geometry.size.height / 2)
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
+            }
+            .ignoresSafeArea(edges: [.top, .leading, .trailing])
+            
+            // Your content goes here
+        }
     }
 }
-
 #Preview {
     farm()
 }
