@@ -59,17 +59,17 @@ struct goals: View {
                         .bold()
                     
                     // Forming square, label, money
-                    CatGoal(color: CategoryColors.food, category: "Food", amount: $goalData.foodAmt)
+                    CatGoal(color: CategoryColors.food, category: "Food", amount: $goalData.ExpectfoodAmt)
                     
-                    CatGoal(color: CategoryColors.drinks, category: "Drinks", amount: $goalData.drinkAmt)
+                    CatGoal(color: CategoryColors.drinks, category: "Drinks", amount: $goalData.ExpectdrinkAmt)
                     
-                    CatGoal(color: CategoryColors.subscriptions, category: "Subscriptions", amount: $goalData.subsAmt)
+                    CatGoal(color: CategoryColors.subscriptions, category: "Subscriptions", amount: $goalData.ExpectsubsAmt)
                     
-                    CatGoal(color: CategoryColors.smallPayment, category: "Small payment", amount: $goalData.smallPayAmt)
+                    CatGoal(color: CategoryColors.smallPayment, category: "Small payment", amount: $goalData.ExpectsmallPayAmt)
                     
-                    CatGoal(color: CategoryColors.transport, category: "Transport", amount: $goalData.transportAmt)
+                    CatGoal(color: CategoryColors.transport, category: "Transport", amount: $goalData.ExpecttransportAmt)
                     
-                    CatGoal(color: CategoryColors.other, category: "Other", amount: $goalData.otherAmt)
+                    CatGoal(color: CategoryColors.other, category: "Other", amount: $goalData.ExpectotherAmt)
                 }
                 .padding(.top, 30)
                 .padding(.bottom, 15)

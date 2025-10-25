@@ -8,6 +8,13 @@ class GoalData: ObservableObject {
     @Published var smallPayAmt: Double = 0
     @Published var transportAmt: Double = 0
     @Published var otherAmt: Double = 0
+    
+    @Published var ExpectfoodAmt: Double = 0
+    @Published var ExpectdrinkAmt: Double = 0
+    @Published var ExpectsubsAmt: Double = 0
+    @Published var ExpectsmallPayAmt: Double = 0
+    @Published var ExpecttransportAmt: Double = 0
+    @Published var ExpectotherAmt: Double = 0
 }
 
 struct Expense: Identifiable {
