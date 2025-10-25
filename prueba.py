@@ -2,37 +2,12 @@ import os
 from google import genai
 from google.genai import types
 
-# Optionally load a local .env file (if you have one) using python-dotenv.
-# If python-dotenv isn't installed, we silently continue and expect the env var
-# to be set by the caller (e.g., `set GENAI_API_KEY=...` on Windows cmd).
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except Exception:
-    # dotenv not installed or failed to load; attempt a minimal manual .env parser as a fallback.
-    # This allows using a local .env file without requiring the python-dotenv package.
-    env_path = os.path.join(os.path.dirname(__file__), '.env')
-    if os.path.exists(env_path):
-        try:
-            with open(env_path, 'r', encoding='utf-8') as envf:
-                for line in envf:
-                    line = line.strip()
-                    if not line or line.startswith('#'):
-                        continue
-                    if '=' in line:
-                        k, v = line.split('=', 1)
-                        k = k.strip()
-                        v = v.strip().strip('"\'\'')
-                        # Only set the variable if it's not already in the environment
-                        if k and v and k not in os.environ:
-                            os.environ[k] = v
-        except Exception:
-            # If parsing fails for any reason, continue and rely on existing environment vars
-            pass
 
-# Read API key from environment for safety
+
+from dotenv import load_dotenv
+load_dotenv()
+
 api_key = os.environ.get('GENAI_API_KEY')
-# Accept common alternate names if present (some examples: GEMINI_API_KEY from your .env)
 
 client = genai.Client(api_key=api_key)
 
@@ -61,7 +36,6 @@ try:
         ]
     )
 except Exception as e:
-    # Print the exception and hint about common causes (auth, network, quota)
     print("Error calling the API:\n", repr(e))
     print("Check your GENAI_API_KEY, network connectivity, and project quotas.")
     raise
