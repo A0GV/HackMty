@@ -8,23 +8,20 @@
 import SwiftUI
 
 struct goals: View {
-    @State public var foodAmt: Double = 0
-    @State public var drinkAmt: Double = 0
-    @State public var subsAmt: Double = 0
-    @State public var smallPayAmt: Double = 0
-    @State public var transportAmt: Double = 0
-    @State public var otherAmt: Double = 0
+    @EnvironmentObject var goalData: GoalData
     
     // Calculated weekly total
-    @State public var weeklyBudget: Double = 0 //foodAmt + drinkAmt + subsAmt + smallPayAmt + transportAmt + otherAmt
-    
-    // Calculates user total budget
-    func loadBudget() {
-        // Load user data from api
-        
-        // Calc weekly budget total
-        weeklyBudget = foodAmt + drinkAmt + subsAmt + smallPayAmt + transportAmt + otherAmt
-    }
+//    @State public var weeklyBudget: Double = 0 //foodAmt + drinkAmt + subsAmt + smallPayAmt + transportAmt + otherAmt
+    var weeklyBudget: Double {
+            goalData.foodAmt + goalData.drinkAmt + goalData.subsAmt + goalData.smallPayAmt + goalData.transportAmt + goalData.otherAmt
+        }
+//    // Calculates user total budget
+//    func loadBudget() {
+//        // Load user data from api
+//        
+//        // Calc weekly budget total
+//        weeklyBudget = foodAmt + drinkAmt + subsAmt + smallPayAmt + transportAmt + otherAmt
+//    }
     
     var body: some View {
         ScrollView {
@@ -62,17 +59,17 @@ struct goals: View {
                         .bold()
                     
                     // Forming square, label, money
-                    CatGoal(color: CategoryColors.food, category: "Food", amount: $foodAmt)
+                    CatGoal(color: CategoryColors.food, category: "Food", amount: $goalData.ExpectfoodAmt)
                     
-                    CatGoal(color: CategoryColors.drinks, category: "Drinks", amount: $drinkAmt)
+                    CatGoal(color: CategoryColors.drinks, category: "Drinks", amount: $goalData.ExpectdrinkAmt)
                     
-                    CatGoal(color: CategoryColors.subscriptions, category: "Subscriptions", amount: $subsAmt)
+                    CatGoal(color: CategoryColors.subscriptions, category: "Subscriptions", amount: $goalData.ExpectsubsAmt)
                     
-                    CatGoal(color: CategoryColors.smallPayment, category: "Small payment", amount: $smallPayAmt)
+                    CatGoal(color: CategoryColors.smallPayment, category: "Small payment", amount: $goalData.ExpectsmallPayAmt)
                     
-                    CatGoal(color: CategoryColors.transport, category: "Transport", amount: $transportAmt)
+                    CatGoal(color: CategoryColors.transport, category: "Transport", amount: $goalData.ExpecttransportAmt)
                     
-                    CatGoal(color: CategoryColors.other, category: "Other", amount: $otherAmt)
+                    CatGoal(color: CategoryColors.other, category: "Other", amount: $goalData.ExpectotherAmt)
                 }
                 .padding(.top, 30)
                 .padding(.bottom, 15)
@@ -80,9 +77,9 @@ struct goals: View {
                 
                 // Submit button to update goal amts, change action later on
                 Button("Update Goals") {
-                    print("Updated goals: food: \(foodAmt), drinks: \(drinkAmt), subscriptions: \(subsAmt), small payment: \(smallPayAmt), transport: \(transportAmt), other: \(otherAmt)")
+                    print("Updated goals: food: \(goalData.foodAmt), drinks: \(goalData.drinkAmt), subscriptions: \(goalData.subsAmt), small payment: \(goalData.smallPayAmt), transport: \(goalData.transportAmt), other: \(goalData.otherAmt)")
                     // API call update in DB
-                    loadBudget() // Updates user budget
+//                    loadBudget() // Updates user budget
                 }
                 .font(.system(size: 25))
                 .padding(10)
@@ -92,12 +89,12 @@ struct goals: View {
                 .foregroundStyle(.white)
             }
             .onAppear() {
-                loadBudget() // Gets user info and updates the weekly budget
+//                loadBudget() // Gets user info and updates the weekly budget
             }
         }
     }
 }
 
 #Preview {
-    goals()
+    goals().environmentObject(GoalData())
 }

@@ -1,8 +1,19 @@
 import SwiftUI
 import Charts
 struct dashboard: View {
-    
+    @EnvironmentObject var goalData: GoalData
     var body: some View {
+        var expenses: [Expense] {
+                [
+                    Expense(color: Color(hex: "#C33B47"), value: goalData.foodAmt, expected: goalData.ExpectfoodAmt, label: "Food"),
+                    Expense(color: Color(hex: "#4974C3"), value: goalData.drinkAmt, expected: goalData.ExpectdrinkAmt, label: "Drinks"),
+                    Expense(color: Color(hex: "#8B40B9"), value: goalData.subsAmt, expected: goalData.ExpectsubsAmt, label: "Subscriptions"),
+                    Expense(color: Color(hex: "#C6A13E"), value: goalData.ExpectsmallPayAmt, expected: goalData.smallPayAmt, label: "SmallPay"),
+                    Expense(color: Color(hex: "#53B33D"), value: goalData.transportAmt, expected: goalData.ExpecttransportAmt, label: "Transport"),
+                    Expense(color: Color(hex: "#4974C3"), value: goalData.otherAmt, expected: goalData.ExpectotherAmt, label: "Other")
+                ]
+            }
+        
         VStack(spacing: 30) {
             Spacer()
             Text("My weekly progress")
@@ -110,5 +121,5 @@ extension Color {
 
 // Preview
 #Preview {
-    dashboard()
+    dashboard().environmentObject(GoalData())
 }
