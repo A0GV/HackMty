@@ -9,11 +9,17 @@ import SwiftUI
 
 struct goals: View {
     @State public var weeklyBudget: Double = 0
+    @State public var foodAmt: Double = 0
+    @State public var drinkAmt: Double = 0
+    @State public var subsAmt: Double = 0
+    @State public var smallPayAmt: Double = 0
+    @State public var transportAmt: Double = 0
+    @State public var otherAmt: Double = 0
     
     var body: some View {
         ScrollView {
             VStack (alignment: .center){
-                Text("Goals")
+                Text("Budgeting Goals")
                     .font(.system(size: 30))
                     .foregroundStyle(CategoryColors.principal)
                     .bold()
@@ -23,7 +29,7 @@ struct goals: View {
                     .font(.system(size: 25))
                     .foregroundStyle(CategoryColors.secondaryRed)
                     .bold()
-                    .padding([.top, .bottom], 10)
+                    .padding([.top, .bottom], 5)
                 
                 // Budget box
                 HStack {
@@ -31,7 +37,7 @@ struct goals: View {
                     Text("$\(weeklyBudget, specifier: "%.2f") MXN")
                         .foregroundStyle(CategoryColors.secondaryRed)
                 }
-                .frame(width: 314, height: 24)
+                .frame(width: 314, height: 34)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                     .inset(by: 0.5)
@@ -45,10 +51,33 @@ struct goals: View {
                         .foregroundStyle(CategoryColors.secondaryRed)
                         .bold()
                     
-                    // Cat: Food
+                    // Forming square, label, money
+                    CatGoal(color: CategoryColors.food, category: "Food", amount: $foodAmt)
                     
+                    CatGoal(color: CategoryColors.drinks, category: "Drinks", amount: $drinkAmt)
+                    
+                    CatGoal(color: CategoryColors.subscriptions, category: "Subscriptions", amount: $subsAmt)
+                    
+                    CatGoal(color: CategoryColors.smallPayment, category: "Small payment", amount: $smallPayAmt)
+                    
+                    CatGoal(color: CategoryColors.transport, category: "Transport", amount: $transportAmt)
+                    
+                    CatGoal(color: CategoryColors.other, category: "Other", amount: $otherAmt)
                 }
-                .padding(.top, 40)
+                .padding(.top, 30)
+                .padding(.bottom, 15)
+                .padding(.horizontal, 30)
+                
+                // Submit button to update goal amts, change action later on
+                Button("Update Goals") {
+                    print("Updated goals: food: \(foodAmt), drinks: \(drinkAmt), subscriptions: \(subsAmt), small payment: \(smallPayAmt), transport: \(transportAmt), other: \(otherAmt)")
+                }
+                .font(.system(size: 25))
+                .padding(10)
+                .frame(width: 314, height: 40)
+                .background(CategoryColors.principal)
+                .cornerRadius(10)
+                .foregroundStyle(.white)
             }
         }
     }
