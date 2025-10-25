@@ -11,7 +11,7 @@ struct FortuneWheelView: View {
     @State private var rotationAngle: Double = 0
     @State private var isSpinning = false
     @State private var result: String = ""
-    @State public var numLeaves: Int = 50 // How many leaves the user has, will pull from api later on
+    @State public var numLeaves: Int = 210 // How many leaves the user has, will pull from api later on
     @State private var spinAlert: Bool = false // Checks if the user can actually spin the wheel or not; will change to true if not enough leaves to play
     
     let items = RouletteData.items
@@ -22,12 +22,14 @@ struct FortuneWheelView: View {
     }
     
     var body: some View {
-        VStack(spacing: 30) {
+        VStack {
             // Indicador (flecha apuntando hacia abajo) - ARRIBA de la ruleta
-            Triangle()
+            /*Triangle()
                 .fill(CategoryColors.principal)
                 .frame(width: 30, height: 40)
                 .shadow(radius: 3)
+                .offset(y: 20) // Push it down to overlap with wheel
+                .zIndex(1) // Make sure it appears on top*/
             
             ZStack {
                 // Ruleta
@@ -64,6 +66,7 @@ struct FortuneWheelView: View {
                 }
                 .frame(width: 300, height: 300)
                 .rotationEffect(Angle(degrees: rotationAngle))
+                .padding(.bottom, 30)
                 
                 // Centro de la ruleta
                 Circle()
@@ -73,6 +76,13 @@ struct FortuneWheelView: View {
                         Circle()
                             .stroke(Color.white, lineWidth: 3)
                     )
+                
+                // Triangle indicator positioned on top of wheel
+                Triangle()
+                    .fill(CategoryColors.principal)
+                    .frame(width: 30, height: 40)
+                    .shadow(radius: 3)
+                    .offset(y: -160)
             }
             
             // Botón para girar
@@ -137,28 +147,79 @@ struct FortuneWheelView: View {
     }
     
     // Spin the wheel
+    /*
     func spinWheel() {
         guard !isSpinning else { return }
         
         // Update leaves user has, later on will be api call
         numLeaves -= 50
         
-        // Sping wheel
+        // Spin wheel
         isSpinning = true
         result = ""
         
-        // Calcular el índice ganador basado en probabilidades
+        // Calculate winning index based on probabilities
         let winningIndex = getWeightedRandomIndex()
         
-        // Calcular ángulo final
+        // Calculate final angle
+        // The triangle points to the top (0 degrees), so we need to rotate
+        // the wheel so that the CENTER of the winning wedge is at the top
         let spins = Double.random(in: 5...8)
-        let finalAngle = (360 * spins) + (wedgeAngle * Double(winningIndex)) + (wedgeAngle / 2)
+        
+        // Calculate the angle to the CENTER of the winning wedge
+        // Since wedges start at their index * wedgeAngle, the center is at index * wedgeAngle + wedgeAngle/2
+        let targetAngle = Double(winningIndex) * wedgeAngle + (wedgeAngle / 2)
+        
+        // We want this wedge at the top (0 degrees after accounting for the -90 offset in WedgeShape)
+        // So we rotate: (full spins * 360) - targetAngle
+        // The negative is because we're rotating the wheel, not the indicator
+        let finalAngle = (360 * spins) - targetAngle
         
         withAnimation(.easeOut(duration: 3.0)) {
             rotationAngle += finalAngle
         }
         
-        // Mostrar resultado después de la animación
+        // Show result after animation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            result = "You got: \(items[winningIndex].title)"
+            isSpinning = false
+        }
+    }*/
+    // Spin the wheel
+    func spinWheel() {
+        guard !isSpinning else { return }
+        
+        // Update leaves user has, later on will be api call
+        numLeaves -= 50
+        
+        // Spin wheel
+        isSpinning = true
+        result = ""
+        
+        // Calculate winning index based on probabilities
+        let winningIndex = getWeightedRandomIndex()
+        
+        // Reset rotation to 0 to ensure consistent starting point
+        let currentRotation = rotationAngle.truncatingRemainder(dividingBy: 360)
+        
+        // Calculate final angle
+        let spins = Double.random(in: 5...8)
+        
+        // The winning wedge center angle (before any rotation)
+        let winningWedgeCenter = Double(winningIndex) * wedgeAngle + (wedgeAngle / 2)
+        
+        // We want the winning wedge at the top (0°/360°)
+        // Account for the -90° offset in WedgeShape drawing
+        let targetAngle = 360 - winningWedgeCenter + 90
+        
+        // Calculate total rotation from current position
+        let finalAngle = (360 * spins) + targetAngle - currentRotation
+        
+        withAnimation(.easeOut(duration: 3.0)) {
+            rotationAngle += finalAngle
+        }
+        
+        // Show result after animation
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             result = "You got: \(items[winningIndex].title)"
             isSpinning = false
