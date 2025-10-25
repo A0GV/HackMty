@@ -14,9 +14,10 @@ struct BouncingAnt: View {
     
     @State private var position: CGPoint
     @State private var velocity: CGPoint
+    @State private var timer: Timer?
     
     let antSize: CGFloat = 100
-    let speed: CGFloat = 0.5
+    let speed: CGFloat = 1
     let topBoundary: CGFloat = 250  // Área donde terminan los botones
     
     init(antImage: String, screenWidth: CGFloat, screenHeight: CGFloat) {
@@ -46,10 +47,16 @@ struct BouncingAnt: View {
             .onAppear {
                 startBouncing()
             }
+            .onDisappear {
+                stopBouncing()
+            }
     }
     
     func startBouncing() {
-        Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
+        // Asegurarse de que no hay timer previo
+        stopBouncing()
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
             // Actualizar posición
             position.x += velocity.x * speed
             position.y += velocity.y * speed
@@ -66,6 +73,11 @@ struct BouncingAnt: View {
                 velocity.y *= -1
             }
         }
+    }
+    
+    func stopBouncing() {
+        timer?.invalidate()
+        timer = nil
     }
 }
 
