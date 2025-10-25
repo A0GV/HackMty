@@ -21,7 +21,7 @@ struct ContentView: View {
                     }
                 dashboard()
                     .tabItem {
-                        Label("Dashboard", systemImage: "target")
+                        Label("Goals", systemImage: "target")
                     }
             }.tint(CategoryColors.principal)
         }

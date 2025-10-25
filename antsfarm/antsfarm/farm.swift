@@ -9,9 +9,9 @@ import SwiftUI
 
 struct farm: View {
     var body: some View {
-        //Fondo
-        ZStack {
-            GeometryReader { geometry in
+        GeometryReader { geometry in
+            ZStack {
+                // Fondo
                 VStack(spacing: 0) {
                     Image("fonfo")
                         .resizable()
@@ -25,10 +25,16 @@ struct farm: View {
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .clipped()
-            }
-            .ignoresSafeArea(edges: [.top, .leading, .trailing])
-            
-            VStack {
+                .ignoresSafeArea(edges: [.top, .leading, .trailing])
+                
+                // Hormigas rebotando (should be add in a diferrent way)
+                BouncingAnt(
+                    antImage: "notant",
+                    screenWidth: geometry.size.width,
+                    screenHeight: geometry.size.height
+                )
+                
+                // UI encima
                 VStack(alignment: .leading, spacing: 20) {
                     HStack {
                         Text("My farm")
@@ -61,20 +67,22 @@ struct farm: View {
                             .font(.system(size: 30))
                             .bold()
                             .foregroundStyle(Color.white)
-                    }.padding(5).background(CategoryColors.principal)
-                        .cornerRadius(10)
+                    }
+                    .padding(5)
+                    .background(CategoryColors.principal)
+                    .cornerRadius(10)
                     
                     Spacer()
                 }
-                .padding(30)
-                .padding(.top, 20)
-                
-                Spacer()
+                .padding(.horizontal, 30)
+                .padding(.top, 80)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
-
         }
+        .ignoresSafeArea(edges: [.top, .leading, .trailing])
     }
 }
+
 #Preview {
     farm()
 }
