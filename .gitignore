@@ -1,16 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/macos,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,windows
-
-# ============================================
-# CREDENTIALS & SECRETS
-# ============================================
 .env
-*.env
-!.env.example
-
-# ============================================
-# macOS
-# ============================================
 ### macOS ###
 # General
 .DS_Store
@@ -44,9 +34,6 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
-# ============================================
-# Windows
-# ============================================
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
@@ -73,60 +60,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# ============================================
-# BACKEND - Python/Flask
-# ============================================
-# Virtual Environments
-backend/venv/
-backend/.venv/
-backend/env/
-backend/ENV/
-backend/env.bak/
-backend/venv.bak/
-venv/
-.venv/
-env/
-ENV/
-
-# Python
-backend/__pycache__/
-backend/*.py[cod]
-backend/*$py.class
-backend/*.so
-backend/.Python
-backend/pip-log.txt
-backend/pip-delete-this-directory.txt
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-
-# Distribution / packaging
-backend/.Python
-backend/build/
-backend/develop-eggs/
-backend/dist/
-backend/downloads/
-backend/eggs/
-backend/.eggs/
-backend/lib/
-backend/lib64/
-backend/parts/
-backend/sdist/
-backend/var/
-backend/wheels/
-backend/*.egg-info/
-backend/.installed.cfg
-backend/*.egg
-*.egg-info/
-dist/
-build/
-
-# PyInstaller
-backend/*.manifest
-backend/*.spec
-
-# Unit test / coverage reports
-backend/htmlcov/
-backend/.tox/
-backend/.n
+# End of https://www.toptal.com/developers/gitignore/api/macos,windows
