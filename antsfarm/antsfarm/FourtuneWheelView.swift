@@ -11,7 +11,7 @@ struct FortuneWheelView: View {
     @State private var rotationAngle: Double = 0
     @State private var isSpinning = false
     @State private var result: String = ""
-    @State public var numLeaves: Int = 0 // How many leaves the user has, will pull from api later on
+    @State public var numLeaves: Int = 50 // How many leaves the user has, will pull from api later on
     @State private var spinAlert: Bool = false // Checks if the user can actually spin the wheel or not; will change to true if not enough leaves to play
     
     let items = RouletteData.items
@@ -77,13 +77,17 @@ struct FortuneWheelView: View {
             
             // Botón para girar
             Button(action: {
-                spinWheel()
+                if numLeaves < 50 {
+                    spinAlert = true // Not enough leaves alert
+                } else {
+                    spinWheel()
+                }
             }) {
                 Text(isSpinning ? "Spinning..." : "SPIN!")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 40)
-                    .padding(.vertical, 15)
+                    .padding(.vertical, 20)
                     .background(isSpinning ? Color.gray : CategoryColors.principal)
                     .cornerRadius(25)
             }
@@ -92,12 +96,22 @@ struct FortuneWheelView: View {
             // Mention prices
             Text("Cost: 50 leaves")
                 .font(.system(size: 20, weight: .semibold))
+                .padding(10)
+                .background(Color.white)
+                .cornerRadius(10)
                 .foregroundStyle(CategoryColors.secondaryRed)
             
             // Alert if do not have enough leaves to play
-            .alert("Not enough leaves, keep logging in!", isPresented: $spinAlert) {
+            
+            /*.alert("Not enough leaves, keep logging in!", isPresented: $spinAlert) {
                 Button("Understood") {}
-            }
+            }*/
+            
+            // Temp leaf view
+            Text("You have: \(numLeaves) leaves 🍃")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(CategoryColors.secondaryRed)
+            
             
             // Resultado
             if !result.isEmpty {
@@ -111,13 +125,25 @@ struct FortuneWheelView: View {
             }
         }
         //.padding(.top, 50)
+        .padding(20)
+        .background(Color.white.opacity(0.80)) // Adds white background just so it's overlayed nicely over farm
+        .cornerRadius(10)
+        // Alert if do not have enough leaves to play - MOVED HERE
+        .alert("Not enough leaves", isPresented: $spinAlert) {
+            Button("OK") {}
+        } message: {
+            Text("Keep logging in every day to collect more leaves and play!")
+        }
     }
     
     // Spin the wheel
     func spinWheel() {
         guard !isSpinning else { return }
         
-        //
+        // Update leaves user has, later on will be api call
+        numLeaves -= 50
+        
+        // Sping wheel
         isSpinning = true
         result = ""
         

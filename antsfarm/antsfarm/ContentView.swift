@@ -23,6 +23,10 @@ struct ContentView: View {
                     .tabItem {
                         Label("Goals", systemImage: "target")
                     }
+                dashboard()
+                    .tabItem{
+                        Label("Dashboard", systemImage: "house")
+                    }
             }.tint(CategoryColors.principal)
         }
         
@@ -31,5 +35,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView().environmentObject(GoalData())
 }
