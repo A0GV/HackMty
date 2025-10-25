@@ -11,10 +11,14 @@ struct ContentView: View {
     var body: some View {
         VStack {
             TabView{
-//                ContentView()
-//                    .tabItem {
-//                        Label("Home", systemImage: "house.circle")
-//                    }
+                home()
+                    .tabItem {
+                        Label("Home", systemImage: "house.circle")
+                    }
+                dashboard()
+                    .tabItem {
+                        Label("Dashboard", systemImage: "house.circle")
+                    }
             }
         }
         .padding()
