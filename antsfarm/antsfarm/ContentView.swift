@@ -13,13 +13,17 @@ struct ContentView: View {
             TabView{
                 home()
                     .tabItem {
-                        Label("Home", systemImage: "house.circle")
+                        Label("Home", systemImage: "house")
+                    }
+                farm()
+                    .tabItem {
+                        Label("Farm", systemImage: "ant")
                     }
                 dashboard()
                     .tabItem {
-                        Label("Dashboard", systemImage: "house.circle")
+                        Label("Dashboard", systemImage: "target")
                     }
-            }
+            }.tint(.purple)
         }
         .padding()
     }
