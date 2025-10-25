@@ -1,26 +1,31 @@
-//
-//  Dash.swift
-//  antsfarm
-//
-//  Created by Adolfo on 25/10/25.
-//
 import SwiftUI
 import Charts
 
-import Foundation
+class GoalData: ObservableObject {
+    @Published var foodAmt: Double = 0
+    @Published var drinkAmt: Double = 0
+    @Published var subsAmt: Double = 0
+    @Published var smallPayAmt: Double = 0
+    @Published var transportAmt: Double = 0
+    @Published var otherAmt: Double = 0
+}
 
 struct Expense: Identifiable {
     let id = UUID()
     let color: Color
-    let value: Double // Gasto real
-    let expected: Double // Gasto esperado
+    let value: Double
+    let expected: Double
     let label: String
 }
-let expenses: [Expense] = [
-    Expense(color: Color(hex: "#C33B47"), value: 100, expected: 100, label: "A"),
-    Expense(color: Color(hex: "#4974C3"), value: 80, expected: 120, label: "B"),
-    Expense(color: Color(hex: "#8B40B9"), value: 90, expected: 90, label: "C"),
-    Expense(color: Color(hex: "#C6A13E"), value: 30, expected: 60, label: "D"),
-    Expense(color: Color(hex: "#53B33D"), value: 50, expected: 70, label: "E"),
-    Expense(color: Color(hex: "#4974C3"), value: 150, expected: 140, label: "F")
-]
+
+//// Esta función la puedes poner donde la necesites, por ejemplo en la vista:
+//func expenses(from goalData: GoalData) -> [Expense] {
+//    [
+//        Expense(color: Color(hex: "#C33B47"), value: goalData.foodAmt, expected: goalData.foodAmt, label: "Food"),
+//        Expense(color: Color(hex: "#4974C3"), value: goalData.drinkAmt, expected: goalData.drinkAmt, label: "Drinks"),
+//        Expense(color: Color(hex: "#8B40B9"), value: goalData.subsAmt, expected: goalData.subsAmt, label: "Subscriptions"),
+//        Expense(color: Color(hex: "#C6A13E"), value: goalData.smallPayAmt, expected: goalData.smallPayAmt, label: "SmallPay"),
+//        Expense(color: Color(hex: "#53B33D"), value: goalData.transportAmt, expected: goalData.transportAmt, label: "Transport"),
+//        Expense(color: Color(hex: "#4974C3"), value: goalData.otherAmt, expected: goalData.otherAmt, label: "Other")
+//    ]
+//}

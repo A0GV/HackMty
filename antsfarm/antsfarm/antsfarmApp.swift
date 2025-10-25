@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct antsfarmApp: App {
+    @StateObject var goalData = GoalData()
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(goalData)
         }
     }
 }

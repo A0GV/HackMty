@@ -84,5 +84,5 @@ struct farm: View {
 }
 
 #Preview {
-    farm()
+    farm().environmentObject(GoalData())
 }
