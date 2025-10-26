@@ -135,3 +135,4 @@ settings.json
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows
 /antsfarm/antsfarm.xcodeproj/project.xcworkspace/xcuserdata/monicaguzman.xcuserdatad
+ca.pem
