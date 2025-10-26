@@ -3,7 +3,7 @@ import SwiftUI
 struct Login: View {
     @State private var username = ""
     @State private var password = ""
-
+    @AppStorage("isLoggedIn") private var isLoggedIn: Bool = false
     private let antBrown = CategoryColors.principal
 
     var body: some View {
@@ -62,6 +62,7 @@ struct Login: View {
 
                 // Botón
                 Button(action: {
+                    isLoggedIn = true
                     print("Sign in tapped:", username, password)
                 }) {
                     Text("Sign in")
