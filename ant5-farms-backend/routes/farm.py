@@ -6,7 +6,7 @@ farm_bp = Blueprint('farm', __name__)
 @farm_bp.route('/<int:user_id>', methods=['GET'])
 def get_farm(user_id):
     """
-    Obtener datos de la granja del usuario
+    Obtener conteo de hormigas y hojas de la granja del usuario
     ---
     tags:
       - Farm
@@ -19,91 +19,110 @@ def get_farm(user_id):
         example: 1
     responses:
       200:
-        description: Datos de la granja
+        description: Conteo de hormigas y hojas
         schema:
           type: object
           properties:
-            success:
-              type: boolean
-            farm:
-              type: object
-              properties:
-                id:
-                  type: integer
-                user_id:
-                  type: integer
-                ants_count:
-                  type: integer
-                leaves_count:
-                  type: integer
-                bonus_leaves_earned:
-                  type: integer
-                  description: Total de días únicos que ha hecho login
+            ants_count:
+              type: integer
+            leaves_count:
+              type: integer
+            ants:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  quantity:
+                    type: integer
       404:
         description: Granja no encontrada
     """
-    query = "SELECT * FROM farm WHERE user_id = %s"
-    farm = execute_query(query, (user_id,), fetch=True)
+    # Obtener información básica de la granja
+    query_farm = "SELECT leaves_count FROM farm WHERE user_id = %s"
+    farm = execute_query(query_farm, (user_id,), fetch=True)
     
     if not farm:
         return jsonify({'success': False, 'message': 'Granja no encontrada'}), 404
-    
-    return jsonify({
-        'success': True,
-        'farm': farm[0]
-    }), 200
 
-
-@farm_bp.route('/<int:user_id>/daily-production', methods=['GET'])
-def get_daily_production(user_id):
-    """
-    Calcular cuántas hojas producirá el usuario HOY
-    Fórmula: (ants_count * 5) + bonus_leaves_earned
-    """
-    # Obtener bonus del usuario desde la tabla farm
-    query_farm = """
-        SELECT bonus_leaves_earned
-        FROM farm
-        WHERE user_id = %s
-    """
-    farm = execute_query(query_farm, (user_id,), fetch=True)
-
-    if not farm:
-        return jsonify({'success': False, 'message': 'Usuario no encontrado'}), 404
-
-    bonus_leaves = farm[0]['bonus_leaves_earned']
-
-    # Sumar cantidad total de hormigas del usuario
-    query_ants = """
+    # Obtener conteo total de hormigas
+    query_ants_count = """
         SELECT COALESCE(SUM(cant), 0) AS ants_count
         FROM ant_farm
         WHERE user_id = %s
     """
-    ants_data = execute_query(query_ants, (user_id,), fetch=True)
+    ants_data = execute_query(query_ants_count, (user_id,), fetch=True)
     ants_count = ants_data[0]['ants_count'] if ants_data else 0
 
-    # Calcular producción
-    leaves_from_ants = ants_count * 5
-    leaves_from_bonus = bonus_leaves
-    total_leaves_today = leaves_from_ants + leaves_from_bonus
+    # Obtener lista detallada de hormigas con su nombre y cantidad
+    query_ants_detail = """
+        SELECT a.name, af.cant AS cant
+        FROM ant_farm af
+        INNER JOIN ants a ON af.id_ant = a.id_ant
+        WHERE af.user_id = %s
+        ORDER BY a.name
+    """
+    ants_list = execute_query(query_ants_detail, (user_id,), fetch=True)
 
+    # Devolver respuesta completa
     return jsonify({
-        'success': True,
-        'daily_production': {
-            'ants_count': ants_count,
-            'bonus_leaves_earned': bonus_leaves,
-            'leaves_from_ants': leaves_from_ants,
-            'leaves_from_bonus': leaves_from_bonus,
-            'total_leaves_today': total_leaves_today
-        }
+        'ants_count': ants_count,
+        'leaves_count': farm[0]['leaves_count'],
+        'ants': ants_list if ants_list else []
     }), 200
 
 
+# @farm_bp.route('/<int:user_id>/daily-production', methods=['GET'])
+# def get_daily_production(user_id):
+#     """
+#     Calcular cuántas hojas producirá el usuario HOY
+#     Fórmula: (ants_count * 5) + bonus_leaves_earned
+#     """
+#     # Obtener bonus del usuario desde la tabla farm
+#     query_farm = """
+#         SELECT bonus_leaves_earned
+#         FROM farm
+#         WHERE user_id = %s
+#     """
+#     farm = execute_query(query_farm, (user_id,), fetch=True)
 
-@farm_bp.route('/<int:user_id>/ants', methods=['POST'])
-def add_ant(user_id):
+#     if not farm:
+#         return jsonify({'success': False, 'message': 'Usuario no encontrado'}), 404
+
+#     bonus_leaves = farm[0]['bonus_leaves_earned']
+
+#     # Sumar cantidad total de hormigas del usuario
+#     query_ants = """
+#         SELECT COALESCE(SUM(cant), 0) AS ants_count
+#         FROM ant_farm
+#         WHERE user_id = %s
+#     """
+#     ants_data = execute_query(query_ants, (user_id,), fetch=True)
+#     ants_count = ants_data[0]['ants_count'] if ants_data else 0
+
+#     # Calcular producción
+#     leaves_from_ants = ants_count * 5
+#     leaves_from_bonus = bonus_leaves
+#     total_leaves_today = leaves_from_ants + leaves_from_bonus
+
+#     return jsonify({
+#         'success': True,
+#         'daily_production': {
+#             'ants_count': ants_count,
+#             'bonus_leaves_earned': bonus_leaves,
+#             'leaves_from_ants': leaves_from_ants,
+#             'leaves_from_bonus': leaves_from_bonus,
+#             'total_leaves_today': total_leaves_today
+#         }
+#     }), 200
+
+
+
+@farm_bp.route('/<int:user_id>/ants/<int:ant_id>', methods=['PUT'])
+def add_ant(user_id, ant_id):
     """
-    Agregar una hormiga (recompensa por ahorrar)
+    Actualizar una hormiga (recompensa por ahorrar)
     ---
     tags:
       - Farm
@@ -114,6 +133,12 @@ def add_ant(user_id):
         required: true
         description: ID del usuario
         example: 1
+      - in: path
+        name: ant_id
+        type: integer
+        required: true
+        description: ID del tipo de hormiga
+        example: 2
     responses:
       200:
         description: Hormiga agregada exitosamente
@@ -122,71 +147,90 @@ def add_ant(user_id):
           properties:
             success:
               type: boolean
-            farm:
-              type: object
-    """
-    query = "UPDATE farm SET ants_count = ants_count + 1 WHERE user_id = %s"
-    execute_query(query, (user_id,))
-    
-    farm_query = "SELECT * FROM farm WHERE user_id = %s"
-    farm = execute_query(farm_query, (user_id,), fetch=True)
-    
-    return jsonify({
-        'success': True,
-        'farm': farm[0] if farm else None
-    }), 200
-
-
-@farm_bp.route('/<int:user_id>/leaves', methods=['POST'])
-def add_leaves(user_id):
-    """
-    Agregar hojas (ruleta, logros, etc)
-    ---
-    tags:
-      - Farm
-    parameters:
-      - in: path
-        name: user_id
-        type: integer
-        required: true
-        description: ID del usuario
-        example: 1
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          required:
-            - leaves
-          properties:
-            leaves:
+            ant_name:
+              type: string
+            quantity:
               type: integer
-              description: Cantidad de hojas a agregar
-              example: 50
-    responses:
-      200:
-        description: Hojas agregadas exitosamente
-        schema:
-          type: object
-          properties:
-            success:
-              type: boolean
-            farm:
-              type: object
+      404:
+        description: Hormiga no encontrada
     """
-    data = request.get_json()
-    leaves_to_add = data.get('leaves', 0)
+    # Verificar que la hormiga existe en la tabla ants
+    check_ant_query = "SELECT name FROM ants WHERE id_ant = %s"
+    ant = execute_query(check_ant_query, (ant_id,), fetch=True)
     
-    query = "UPDATE farm SET leaves_count = leaves_count + %s WHERE user_id = %s"
-    execute_query(query, (leaves_to_add, user_id))
+    if not ant:
+        return jsonify({'success': False, 'message': 'Hormiga no encontrada'}), 404
     
-    farm_query = "SELECT * FROM farm WHERE user_id = %s"
-    farm = execute_query(farm_query, (user_id,), fetch=True)
+    # Verificar si el usuario ya tiene esta hormiga
+    check_query = "SELECT cant FROM ant_farm WHERE user_id = %s AND id_ant = %s"
+    existing_ant = execute_query(check_query, (user_id, ant_id), fetch=True)
+    
+    if existing_ant:
+        # Si ya existe, incrementar la cantidad
+        update_query = "UPDATE ant_farm SET cant = cant + 1 WHERE user_id = %s AND id_ant = %s"
+        execute_query(update_query, (user_id, ant_id))
+        new_quantity = existing_ant[0]['cant'] + 1
+    else:
+        # Si no existe, crear nueva entrada
+        insert_query = "INSERT INTO ant_farm (user_id, id_ant, cant) VALUES (%s, %s, 1)"
+        execute_query(insert_query, (user_id, ant_id))
+        new_quantity = 1
     
     return jsonify({
-        'success': True,
-        'farm': farm[0] if farm else None
+        'success': True
     }), 200
+
+
+# @farm_bp.route('/<int:user_id>/leaves', methods=['POST'])
+# def add_leaves(user_id):
+#     """
+#     Agregar hojas (ruleta, logros, etc)
+#     ---
+#     tags:
+#       - Farm
+#     parameters:
+#       - in: path
+#         name: user_id
+#         type: integer
+#         required: true
+#         description: ID del usuario
+#         example: 1
+#       - in: body
+#         name: body
+#         required: true
+#         schema:
+#           type: object
+#           required:
+#             - leaves
+#           properties:
+#             leaves:
+#               type: integer
+#               description: Cantidad de hojas a agregar
+#               example: 50
+#     responses:
+#       200:
+#         description: Hojas agregadas exitosamente
+#         schema:
+#           type: object
+#           properties:
+#             success:
+#               type: boolean
+#             farm:
+#               type: object
+#     """
+#     data = request.get_json()
+#     leaves_to_add = data.get('leaves', 0)
+    
+#     query = "UPDATE farm SET leaves_count = leaves_count + %s WHERE user_id = %s"
+#     execute_query(query, (leaves_to_add, user_id))
+    
+#     farm_query = "SELECT * FROM farm WHERE user_id = %s"
+#     farm = execute_query(farm_query, (user_id,), fetch=True)
+    
+#     return jsonify({
+#         'success': True,
+#         'farm': farm[0] if farm else None
+#     }), 200
 
 @farm_bp.route('/<int:user_id>/leaves', methods=['PUT'])
 def update_leaves(user_id):
