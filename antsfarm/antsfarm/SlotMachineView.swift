@@ -16,6 +16,8 @@ struct SlotMachineView: View {
     
     let items = RouletteData.items // To iterate between possible rewards
     
+    var onLeavesChange: (Int) -> Void // Function to call API
+    
     var body: some View {
         VStack {
             Text("Prize Wheel")
@@ -101,7 +103,9 @@ struct SlotMachineView: View {
     func spinSlot() {
         guard !isSpinning else { return }
         
-        numLeaves -= 50
+        // Call API to deduct 50 leaves
+        onLeavesChange(-50)
+        
         isSpinning = true
         result = ""
         
@@ -132,16 +136,15 @@ struct SlotMachineView: View {
             }
         }
     }
-    
+        
     func processReward(_ reward: RewardType) {
         switch reward {
         case .leaves(let amount):
-            numLeaves += amount
-            // API to incr num of leaves
+            // Call API to add leaves
+            onLeavesChange(amount)
         case .ant:
-            print("Got ant") // Temp
-            //numAnts += 1
-            // API increase number of ants
+            print("Got ant - implement ant API call later")
+            // TODO: Add API call for ants when ready
         case .nothing:
             // No reward, do nothing
             break
@@ -164,5 +167,10 @@ struct SlotMachineView: View {
 }
 
 #Preview {
-    SlotMachineView(numLeaves: .constant(200))
+    SlotMachineView(
+        numLeaves: .constant(200),
+        onLeavesChange: { amount in
+            print("Should update leaves by: \(amount)")
+        }
+    )
 }

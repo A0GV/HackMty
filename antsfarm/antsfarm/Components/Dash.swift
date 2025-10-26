@@ -15,6 +15,10 @@ class GoalData: ObservableObject {
     @Published var ExpectsmallPayAmt: Double = 0
     @Published var ExpecttransportAmt: Double = 0
     @Published var ExpectotherAmt: Double = 0
+    
+    //Para la cosa de monica
+    @Published var hojas: Int = 0 // Will update when pull from db
+    @Published var id_user: Int = 1 // Just for testing
 }
 
 struct Expense: Identifiable {
