@@ -17,8 +17,8 @@ struct dashboard: View {
             Expense(color: CategoryColors.other, value: goalData.otherAmt, expected: goalData.ExpectotherAmt, label: "Other")
         ]
     }
+
     var body: some View {
-        
         VStack(spacing: 30) {
             Spacer()
             Text("My weekly progress")
@@ -91,8 +91,16 @@ struct dashboard: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
-                .background(Color(hex: "#6B3B33"))
+                .background(CategoryColors.principal)
                 .cornerRadius(18)
+            }
+            .photosPicker(isPresented: Binding(get: {selectedPhotoItem}, set:{
+                show in if !show {selectedPhotoItem = nil}
+            }
+                                              ),
+                          selection: $selectedPhotoItem,
+                          matching: .images
+            )
             .padding(.horizontal, 16)
             Spacer()
         }
