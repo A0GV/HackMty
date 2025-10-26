@@ -14,7 +14,7 @@ struct SlotMachineView: View {
     @Binding var numLeaves: Int // Store num of leaves for internal logic
     @State private var spinAlert: Bool = false
     
-    let items = RouletteData.items
+    let items = RouletteData.items // To iterate between possible rewards
     
     var body: some View {
         VStack {
@@ -29,7 +29,7 @@ struct SlotMachineView: View {
             Text("Cost: 50 leaves")
                 .font(.system(size: 20, weight: .semibold))
                 .padding(10)
-                //.background(Color.white)
+            //.background(Color.white)
                 .cornerRadius(10)
                 .foregroundStyle(CategoryColors.secondaryRed)
                 .padding(.bottom, 5)
@@ -71,10 +71,11 @@ struct SlotMachineView: View {
                     .cornerRadius(25)
             }
             .disabled(isSpinning)
+            .padding(.bottom, 15)
             
             /*Text("Available: \(numLeaves) leaves 🍃")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(CategoryColors.secondaryRed)*/
+             .font(.system(size: 18, weight: .semibold))
+             .foregroundStyle(CategoryColors.secondaryRed)*/
             
             // Result
             if !result.isEmpty {
@@ -104,9 +105,9 @@ struct SlotMachineView: View {
         isSpinning = true
         result = ""
         
-        // Get winning index
+        // Get winning index and item
         let winningIndex = getWeightedRandomIndex()
-        let winningItem = items[winningIndex].title
+        let winningItem = items[winningIndex]
         
         // Animate through random items
         var counter = 0
@@ -120,11 +121,30 @@ struct SlotMachineView: View {
                 displayedItem = items.randomElement()?.title ?? "SPIN!"
             } else {
                 // Show winning item
-                displayedItem = winningItem
-                result = "You got: \(winningItem)"
+                displayedItem = winningItem.title
+                
+                // Process the reward
+                processReward(winningItem.reward)
+                
+                result = "You got: \(winningItem.title)"
                 isSpinning = false
                 timer.invalidate()
             }
+        }
+    }
+    
+    func processReward(_ reward: RewardType) {
+        switch reward {
+        case .leaves(let amount):
+            numLeaves += amount
+            // API to incr num of leaves
+        case .ant:
+            print("Got ant") // Temp
+            //numAnts += 1
+            // API increase number of ants
+        case .nothing:
+            // No reward, do nothing
+            break
         }
     }
     
@@ -142,6 +162,7 @@ struct SlotMachineView: View {
         return 0
     }
 }
+
 #Preview {
     SlotMachineView(numLeaves: .constant(200))
 }
