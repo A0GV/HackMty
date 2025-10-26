@@ -11,7 +11,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             TabView{
-                home()
+                dashboard()
                     .tabItem {
                         Label("Home", systemImage: "house")
                     }
@@ -22,10 +22,6 @@ struct ContentView: View {
                 goals()
                     .tabItem {
                         Label("Goals", systemImage: "target")
-                    }
-                dashboard()
-                    .tabItem{
-                        Label("Dashboard", systemImage: "house")
                     }
             }.tint(CategoryColors.principal)
         }

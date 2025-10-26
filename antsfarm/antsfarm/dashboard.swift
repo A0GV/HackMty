@@ -12,13 +12,13 @@ struct dashboard: View {
     @State private var selectedImage: UIImage? = nil
     @State private var uploading: Bool = false
     @State private var uploadResult: String? = nil
-
+    
     // Cambia esto por el user id real o pásalo desde tu entorno de sesión
     let currentUserId: Int = 1
-
+    
     // URL del backend (REEMPLAZAR por tu dominio / https en producción)
     let analyzeURL = URL(string: "http://localhost:5001/api/expenses/analyze")!
-
+    
     // expenses declarado fuera del body para ayudar al compilador
     var expenses: [Expense] {
         [
@@ -30,87 +30,89 @@ struct dashboard: View {
             Expense(color: CategoryColors.other, value: goalData.otherAmt, expected: goalData.ExpectotherAmt, label: "Other")
         ]
     }
-
+    
     var body: some View {
-        VStack(spacing: 30) {
-            Spacer()
-            Text("My weekly progress")
-                .font(.system(size: 32, weight: .bold))
-                .foregroundColor(CategoryColors.principal)
-                .multilineTextAlignment(.center)
-
-            // Expended/Saved (sin cambios)
-            HStack(spacing: 24) {
-                VStack {
-                    Text("Expended")
-                        .font(.system(size: 26, weight: .regular))
-                        .foregroundColor(.white)
-                    Text("85%")
-                        .font(.system(size: 38, weight: .bold))
-                        .foregroundColor(.white)
-                }
-                .frame(width: 180, height: 110)
-                .background(CategoryColors.smallPayment)
-                .cornerRadius(12)
-
-                VStack {
-                    Text("Saved")
-                        .font(.system(size: 26, weight: .regular))
-                        .foregroundColor(.white)
-                    Text("15%")
-                        .font(.system(size: 38, weight: .bold))
-                        .foregroundColor(.white)
-                }
-                .frame(width: 150, height: 110)
-                .background(CategoryColors.transport)
-                .cornerRadius(12)
-            }
-
-            Text("Weekly expenses")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundColor(CategoryColors.principal)
-                .padding(.top, 10)
-
-            // Chart extraída a sub-vista para reducir complejidad
-            ExpensesChart(expenses: expenses)
-                .frame(height: 180)
-                .padding(.horizontal, 16)
-
-            // Mostrar la imagen seleccionada (opcional)
-            if let image = selectedImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 150)
+        ScrollView{
+            VStack(spacing: 30) {
+                Spacer()
+                Text("My weekly progress")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundColor(CategoryColors.principal)
+                    .multilineTextAlignment(.center)
+                
+                // Expended/Saved (sin cambios)
+                HStack(spacing: 24) {
+                    VStack {
+                        Text("Expended")
+                            .font(.system(size: 26, weight: .regular))
+                            .foregroundColor(.white)
+                        Text("85%")
+                            .font(.system(size: 38, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    .frame(width: 180, height: 110)
+                    .background(CategoryColors.smallPayment)
                     .cornerRadius(12)
-                    .padding(.horizontal)
+                    
+                    VStack {
+                        Text("Saved")
+                            .font(.system(size: 26, weight: .regular))
+                            .foregroundColor(.white)
+                        Text("15%")
+                            .font(.system(size: 38, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    .frame(width: 150, height: 110)
+                    .background(CategoryColors.transport)
+                    .cornerRadius(12)
+                }
+                
+                Text("Weekly expenses")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(CategoryColors.principal)
+                    .padding(.top, 10)
+                
+                // Chart extraída a sub-vista para reducir complejidad
+                ExpensesChart(expenses: expenses)
+                    .frame(height: 180)
+                    .padding(.horizontal, 16)
+                
+                // Mostrar la imagen seleccionada (opcional)
+                if let image = selectedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 150)
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                }
+                
+                // Mostrar estado de upload
+                if uploading {
+                    ProgressView("Uploading...")
+                        .padding(.horizontal)
+                } else if let result = uploadResult {
+                    Text(result)
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                        .padding(.horizontal)
+                }
+                
+                // Botón que abre el PhotoPicker (sub-vista)
+                PhotoPickerButton(
+                    selectedPhotoItem: $selectedPhotoItem,
+                    selectedImage: $selectedImage,
+                    currentUserId: currentUserId,
+                    analyzeURL: analyzeURL,
+                    uploading: $uploading,
+                    uploadResult: $uploadResult
+                )
+                
+                Spacer()
             }
-
-            // Mostrar estado de upload
-            if uploading {
-                ProgressView("Uploading...")
-                    .padding(.horizontal)
-            } else if let result = uploadResult {
-                Text(result)
-                    .font(.footnote)
-                    .foregroundColor(.gray)
-                    .padding(.horizontal)
-            }
-
-            // Botón que abre el PhotoPicker (sub-vista)
-            PhotoPickerButton(
-                selectedPhotoItem: $selectedPhotoItem,
-                selectedImage: $selectedImage,
-                currentUserId: currentUserId,
-                analyzeURL: analyzeURL,
-                uploading: $uploading,
-                uploadResult: $uploadResult
-            )
-
-            Spacer()
+            .background(Color.white)
+            .ignoresSafeArea()
         }
-        .background(Color.white)
-        .ignoresSafeArea()
     }
 }
 

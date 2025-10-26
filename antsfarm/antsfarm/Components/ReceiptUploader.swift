@@ -61,10 +61,11 @@ public func uploadReceipt(userId: Int, image: UIImage, serverURL: URL, authToken
     body.appendString("\r\n")
     body.appendString("--\(boundary)--\r\n")
 
-    
+    // Debug prints
     print("➡️ Request URL: \(request.url?.absoluteString ?? "nil")")
     print("➡️ Request headers: \(request.allHTTPHeaderFields ?? [:])")
     print("➡️ Body size (bytes): \(body.count)")
+
     // 3) Upload (async)
     let (data, response) = try await URLSession.shared.upload(for: request, from: body)
 
@@ -83,5 +84,92 @@ public func uploadReceipt(userId: Int, image: UIImage, serverURL: URL, authToken
         return dict
     } else {
         return ["result": jsonAny]
+    }
+}
+
+/// Aplica el expense devuelto por el backend a las propiedades de GoalData (sumando el amount a la variable correspondiente).
+/// - Parameters:
+///   - resp: diccionario resultante del uploadReceipt (espera key "expense")
+///   - goalData: instancia de GoalData (ObservableObject)
+   func applyExpenseToGoalData(from resp: [String: Any], goalData: GoalData) async {
+    // Helper local para parsear amount en Double
+    func parseAmount(_ any: Any?) -> Double? {
+        if any == nil { return nil }
+        if let d = any as? Double { return d }
+        if let f = any as? Float { return Double(f) }
+        if let i = any as? Int { return Double(i) }
+        if let ns = any as? NSNumber { return ns.doubleValue }
+        if let s = any as? String {
+            let cleaned = s.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespacesAndNewlines)
+            return Double(cleaned)
+        }
+        return nil
+    }
+
+    guard let expenseAny = resp["expense"] else { return }
+    guard let expense = expenseAny as? [String: Any] else { return }
+
+    guard let amount = parseAmount(expense["amount"]), amount > 0 else {
+        print("⚠️ No se pudo parsear amount del expense:", expense["amount"] ?? "nil")
+        return
+    }
+
+    // Determinar category_id preferente
+    var categoryId: Int? = nil
+    if let cid = expense["category_id"] as? Int { categoryId = cid }
+    else if let ns = expense["category_id"] as? NSNumber { categoryId = ns.intValue }
+    else if let s = expense["category_id"] as? String, let intVal = Int(s) { categoryId = intVal }
+
+    // Determinar category_name en minúsculas como fallback
+    var categoryName: String? = nil
+    if let cname = expense["category_name"] as? String { categoryName = cname.lowercased() }
+
+    await MainActor.run {
+        switch categoryId {
+        case 1:
+            goalData.foodAmt += amount
+            print("✅ Added \(amount) to foodAmt -> now \(goalData.foodAmt)")
+        case 2:
+            goalData.drinkAmt += amount
+            print("✅ Added \(amount) to drinkAmt -> now \(goalData.drinkAmt)")
+        case 3:
+            goalData.subsAmt += amount
+            print("✅ Added \(amount) to subsAmt -> now \(goalData.subsAmt)")
+        case 4:
+            goalData.smallPayAmt += amount
+            print("✅ Added \(amount) to smallPayAmt -> now \(goalData.smallPayAmt)")
+        case 5:
+            goalData.transportAmt += amount
+            print("✅ Added \(amount) to transportAmt -> now \(goalData.transportAmt)")
+        case 6:
+            goalData.otherAmt += amount
+            print("✅ Added \(amount) to otherAmt -> now \(goalData.otherAmt)")
+        default:
+            // Fallback por category_name si no vino id
+            if let name = categoryName {
+                if name.contains("food") {
+                    goalData.foodAmt += amount
+                    print("✅ (by name) Added \(amount) to foodAmt -> now \(goalData.foodAmt)")
+                } else if name.contains("drink") {
+                    goalData.drinkAmt += amount
+                    print("✅ (by name) Added \(amount) to drinkAmt -> now \(goalData.drinkAmt)")
+                } else if name.contains("subs") || name.contains("subscription") {
+                    goalData.subsAmt += amount
+                    print("✅ (by name) Added \(amount) to subsAmt -> now \(goalData.subsAmt)")
+                } else if name.contains("small") || name.contains("tip") || name.contains("payment") {
+                    goalData.smallPayAmt += amount
+                    print("✅ (by name) Added \(amount) to smallPayAmt -> now \(goalData.smallPayAmt)")
+                } else if name.contains("transport") || name.contains("uber") || name.contains("gas") {
+                    goalData.transportAmt += amount
+                    print("✅ (by name) Added \(amount) to transportAmt -> now \(goalData.transportAmt)")
+                } else {
+                    goalData.otherAmt += amount
+                    print("✅ (by name fallback) Added \(amount) to otherAmt -> now \(goalData.otherAmt)")
+                }
+            } else {
+                goalData.otherAmt += amount
+                print("⚠️ Sin categoría identificada: Added \(amount) to otherAmt -> now \(goalData.otherAmt)")
+            }
+        }
     }
 }
