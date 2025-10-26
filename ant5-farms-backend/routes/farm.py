@@ -259,8 +259,8 @@ def update_leaves(user_id):
               description: Cantidad a sumar (positivo) o restar (negativo)
               example: -50
     responses:
-      200:
-        description: Hojas actualizadas exitosamente
+      204:
+        description: Hojas actualizadas exitosamente (sin contenido)
       400:
         description: Datos inválidos o saldo insuficiente
       404:
@@ -268,58 +268,31 @@ def update_leaves(user_id):
     """
     data = request.get_json() or {}
     leaves_change = data.get('leaves')
-    
-    # Validar que se envió la cantidad
+
     if leaves_change is None:
-        return jsonify({
-            'success': False, 
-            'message': 'Campo "leaves" requerido'
-        }), 400
-    
-    # Validar que sea un número válido
+        return jsonify({'message': 'Campo "leaves" requerido'}), 400
+
     try:
         leaves_change = int(leaves_change)
     except (ValueError, TypeError):
-        return jsonify({
-            'success': False,
-            'message': 'El campo "leaves" debe ser un número entero'
-        }), 400
-    
-    # Obtener cantidad actual de hojas
-    query_current = "SELECT leaves_count FROM farm WHERE user_id = %s"
-    farm = execute_query(query_current, (user_id,), fetch=True)
-    
-    if not farm:
-        return jsonify({
-            'success': False,
-            'message': 'Usuario no encontrado'
-        }), 404
-    
-    current_leaves = farm[0]['leaves_count']
+        return jsonify({'message': 'El campo "leaves" debe ser un número entero'}), 400
+
+    # Get current leaves
+    query = "SELECT leaves_count FROM farm WHERE user_id = %s"
+    result = execute_query(query, (user_id,), fetch=True)
+    if not result:
+        return jsonify({'message': 'Usuario no encontrado'}), 404
+
+    current_leaves = result[0]['leaves_count']
     new_leaves = current_leaves + leaves_change
-    
-    # Validar que no quede negativo
+
+    # Prevent negatives
     if new_leaves < 0:
-        return jsonify({
-            'success': False,
-            'message': 'Saldo insuficiente',
-            'current_leaves': current_leaves,
-            'attempted_change': leaves_change,
-            'required': abs(leaves_change)
-        }), 400
-    
-    # Actualizar hojas
-    update_query = "UPDATE farm SET leaves_count = %s WHERE user_id = %s"
-    execute_query(update_query, (new_leaves, user_id))
-    
-    # Obtener datos actualizados
-    farm_query = "SELECT * FROM farm WHERE user_id = %s"
-    updated_farm = execute_query(farm_query, (user_id,), fetch=True)
-    
-    return jsonify({
-        'success': True,
-        'previous_leaves': current_leaves,
-        'leaves_change': leaves_change,
-        'new_leaves': new_leaves,
-        'farm': updated_farm[0] if updated_farm else None
-    }), 200
+        return jsonify({'message': 'Saldo insuficiente'}), 400
+
+    # Update silently
+    update_q = "UPDATE farm SET leaves_count = %s WHERE user_id = %s"
+    execute_query(update_q, (new_leaves, user_id))
+
+    # Return HTTP 204: No Content
+    return '', 204

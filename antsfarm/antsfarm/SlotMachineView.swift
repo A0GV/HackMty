@@ -12,6 +12,7 @@ struct SlotMachineView: View {
     @State private var result: String = ""
     @State private var displayedItem: String = "Spin to Win!"
     @Binding var numLeaves: Int // Store num of leaves for internal logic
+    @Binding var numAnts: Int // Binds number of ants
     @State private var spinAlert: Bool = false
     
     let items = RouletteData.items // To iterate between possible rewards
@@ -143,8 +144,8 @@ struct SlotMachineView: View {
             // Call API to add leaves
             onLeavesChange(amount)
         case .ant:
-            print("Got ant - implement ant API call later")
-            // TODO: Add API call for ants when ready
+            numAnts += 1
+            //print("Got ant - implement ant API call later")
         case .nothing:
             // No reward, do nothing
             break
@@ -168,7 +169,7 @@ struct SlotMachineView: View {
 
 #Preview {
     SlotMachineView(
-        numLeaves: .constant(200),
+        numLeaves: .constant(200), numAnts: .constant(1),
         onLeavesChange: { amount in
             print("Should update leaves by: \(amount)")
         }

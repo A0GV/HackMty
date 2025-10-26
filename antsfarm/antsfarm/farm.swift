@@ -15,10 +15,7 @@ struct farm: View {
     @State private var numAnts:Int = 10 // API Get DB num of ants
     @State public var id_usuario:Int = 1 // Temp id usuario fijo
     
-    // Number of ants from db
-    
-    
-    // Get user number of leaves for user
+    // Get user number of leaves and ants for user
     func getNumLeaves() {
         guard let url = URL(string: "http://localhost:5001/api/farm/\(id_usuario)") else {
             print("El endpoint no está disponible")
@@ -57,9 +54,9 @@ struct farm: View {
                 
                 // Update state on main thread
                 DispatchQueue.main.async {
-                    self.leaves = farmResponse.farm.leaves_count
-                    //self.numAnts = farmResponse.farm.ants_count
-                    print("Leaves: \(self.leaves)")
+                    self.leaves = farmResponse.leavesCount
+                    self.numAnts = Int(farmResponse.antsCount) ?? 1 // Default 1 ant only
+                    print("Leaves: \(self.leaves), Ants: \(self.numAnts)")
                 }
             } catch {
                 print("Error al decodificar JSON: \(error)")
@@ -79,69 +76,55 @@ struct farm: View {
             print("El endpoint no está disponible")
             return
         }
-        
-        // Create the request body
-        let requestBody = UpdateLeavesRequest(leaves: changeAmt)
-        
-        // Create the request
+
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"  // or "PUT" depending on your API
+        request.httpMethod = "PUT" // backend now expects PUT
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        // Encode the body to JSON
-        do {
-            request.httpBody = try JSONEncoder().encode(requestBody)
-        } catch {
-            print("Error al codificar el body: \(error)")
-            return
+        request.httpBody = try? JSONEncoder().encode(UpdateLeavesRequest(leaves: changeAmt))
+
+        // Optimistic UI: update immediately
+        DispatchQueue.main.async {
+            self.leaves += changeAmt
         }
-        
-        // Make the request
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            // Check for errors
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 print("Error en la llamada: \(error.localizedDescription)")
+                // rollback if you want:
+                DispatchQueue.main.async { self.leaves -= changeAmt }
                 return
             }
-            
-            // Validate HTTP response
-            guard let httpResponse = response as? HTTPURLResponse else {
+
+            guard let http = response as? HTTPURLResponse else {
                 print("Respuesta no válida del servidor")
+                // rollback
+                DispatchQueue.main.async { self.leaves -= changeAmt }
                 return
             }
-            
-            // Check status code
-            if httpResponse.statusCode != 200 {
-                print("Código de error del API: \(httpResponse.statusCode)")
+
+            if http.statusCode == 204 {
+                print("✅ Leaves updated (204 No Content)")
+                // Optional: refresh from server to be sure
+                self.getNumLeaves()
                 return
             }
-            
-            // Check if data exists
-            guard let data = data else {
-                print("No se recibieron datos")
+
+            if (200...299).contains(http.statusCode) {
+                // Some setups still return 200 text/html with empty body
+                print("✅ Leaves updated (\(http.statusCode))")
+                self.getNumLeaves()
                 return
             }
-            
-            // Decode JSON response
-            do {
-                let decoder = JSONDecoder()
-                let farmResponse = try decoder.decode(FarmResponse.self, from: data)
-                
-                // Update state on main thread
-                DispatchQueue.main.async {
-                    self.leaves = farmResponse.farm.leaves_count
-                    print("Leaves updated: \(self.leaves)")
-                }
-            } catch {
-                print("Error al decodificar JSON: \(error)")
-                if let jsonString = String(data: data, encoding: .utf8) {
-                    print("Datos recibidos: \(jsonString)")
-                }
-            }
-        }
-        
-        task.resume()
+
+            // Error path: print body for debugging
+            var bodyText = ""
+            if let data = data, let s = String(data: data, encoding: .utf8) { bodyText = s }
+            print("⚠️ API error \(http.statusCode). Body: \(bodyText)")
+            // rollback
+            DispatchQueue.main.async { self.leaves -= changeAmt }
+        }.resume()
     }
+
     
     
     var body: some View {
@@ -262,7 +245,7 @@ struct farm: View {
                         
                         // Pass the binding and the update function
                         SlotMachineView(
-                            numLeaves: $leaves,
+                            numLeaves: $leaves, numAnts: $numAnts,
                             onLeavesChange: { amount in
                                 updateLeaves(changeAmt: amount)
                             }

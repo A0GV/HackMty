@@ -7,16 +7,20 @@
 
 import Foundation
 
-// Recieves base farm info
+// Updated structure for new API response
 struct FarmResponse: Codable {
-    let farm: Farm
-    let success: Bool
+    let ants: [Ant]
+    let antsCount: String
+    let leavesCount: Int
+
+    enum CodingKeys: String, CodingKey {
+        case ants
+        case antsCount = "ants_count"
+        case leavesCount = "leaves_count"
+    }
 }
 
-struct Farm: Codable {
-    let id: Int
-    let user_id: Int
-    //let ants_count: Int
-    let leaves_count: Int
-    let bonus_leaves_earned: Int
+struct Ant: Codable {
+    let cant: Int
+    let name: String
 }
