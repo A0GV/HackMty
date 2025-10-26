@@ -4,7 +4,7 @@ import PhotosUI
 struct PhotoPickerView: View {
     @State private var selectedItem: PhotosPickerItem? = nil
     @State private var selectedImage: UIImage? = nil
-    
+
     var body: some View {
         VStack {
             if let image = selectedImage {
@@ -18,7 +18,7 @@ struct PhotoPickerView: View {
                     .frame(height: 200)
                     .overlay(Text("No image selected"))
             }
-            
+
             PhotosPicker(
                 selection: $selectedItem,
                 matching: .images,
@@ -33,11 +33,13 @@ struct PhotoPickerView: View {
                     .cornerRadius(8)
                 }
         }
-        .onChange(of: selectedItem) { oldItem, newItem in
+        .onChange(of: selectedItem) { newItem in
             Task {
                 if let data = try? await newItem?.loadTransferable(type: Data.self),
                    let uiImage = UIImage(data: data) {
-                    selectedImage = uiImage
+                    await MainActor.run {
+                        selectedImage = uiImage
+                    }
                 }
             }
         }
