@@ -162,13 +162,21 @@ struct farm: View {
                     .frame(width: geometry.size.width, height: geometry.size.height)
                     .clipped()
                     .ignoresSafeArea(edges: [.top, .leading, .trailing])
-                    
+                    /*
                     // Hormigas rebotando
                     BouncingAnt(
                         antImage: "notant",
                         screenWidth: geometry.size.width,
                         screenHeight: geometry.size.height
-                    )
+                    )*/
+                    // Multiple bouncing ants
+                    ForEach(0..<numAnts, id: \.self) { index in
+                        BouncingAnt(
+                            antImage: "notant",
+                            screenWidth: geometry.size.width,
+                            screenHeight: geometry.size.height
+                        )
+                    }
                     
                     // UI encima
                     VStack(alignment: .trailing, spacing: 20) {
