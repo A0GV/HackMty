@@ -2,8 +2,6 @@ from flask import Blueprint, request, jsonify
 from config.db import execute_query
 from datetime import date
 
-from routes.farm import get_daily_production
-
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['PUT'])
@@ -63,14 +61,14 @@ def login():
     password = data.get('password')
     
     if not username or not password:
-        return jsonify({'success': False, 'message': 'Username y password requeridos'}), 400
+        return jsonify({'success': False, 'message': 'Username and password are required'}), 400
     
     # Buscar usuario
     query = "SELECT * FROM users WHERE username = %s AND password = %s"
     user = execute_query(query, (username, password), fetch=True)
     
     if not user:
-        return jsonify({'success': False, 'message': 'Credenciales inválidas'}), 401
+        return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
     
     user = user[0]
     user_id = user['id']
@@ -79,7 +77,6 @@ def login():
     todayyyy = True
     # Variables para la respuesta
     leaves_earned_today = 0
-    # get_daily_production(user_id)
 
     # Sumar cantidad total de hormigas del usuario
     query_ants = """
