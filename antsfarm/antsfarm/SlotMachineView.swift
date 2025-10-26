@@ -11,16 +11,28 @@ struct SlotMachineView: View {
     @State private var isSpinning = false
     @State private var result: String = ""
     @State private var displayedItem: String = "Spin to Win!"
-    @State public var numLeaves: Int = 210
+    @Binding var numLeaves: Int // Store num of leaves for internal logic
     @State private var spinAlert: Bool = false
     
     let items = RouletteData.items
     
     var body: some View {
-        VStack{
+        VStack {
             Text("Prize Wheel")
                 .font(.system(size: 32, weight: .bold))
                 .foregroundStyle(CategoryColors.principal)
+                .padding(10)
+                .background(Color.white)
+                .cornerRadius(10)
+            
+            // Cost and leaves info
+            Text("Cost: 50 leaves")
+                .font(.system(size: 20, weight: .semibold))
+                .padding(10)
+                //.background(Color.white)
+                .cornerRadius(10)
+                .foregroundStyle(CategoryColors.secondaryRed)
+                .padding(.bottom, 5)
             
             // Slot machine display
             ZStack {
@@ -60,24 +72,16 @@ struct SlotMachineView: View {
             }
             .disabled(isSpinning)
             
-            // Cost and leaves info
-            Text("Cost: 50 leaves")
-                .font(.system(size: 20, weight: .semibold))
-                .padding(10)
-                .background(Color.white)
-                .cornerRadius(10)
-                .foregroundStyle(CategoryColors.secondaryRed)
-            
-            Text("Available: \(numLeaves) leaves 🍃")
+            /*Text("Available: \(numLeaves) leaves 🍃")
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(CategoryColors.secondaryRed)
+                .foregroundStyle(CategoryColors.secondaryRed)*/
             
             // Result
             if !result.isEmpty {
                 Text(result)
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(CategoryColors.principal)
-                    .padding()
+                    .padding(10)
                     .background(Color.white)
                     .cornerRadius(15)
                     .shadow(radius: 5)
@@ -139,5 +143,5 @@ struct SlotMachineView: View {
     }
 }
 #Preview {
-    SlotMachineView()
+    SlotMachineView(numLeaves: .constant(200))
 }
