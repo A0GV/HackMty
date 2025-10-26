@@ -17,16 +17,6 @@ def get_db_connection():
         user = os.getenv('DB_USER')
         database = os.getenv('DB_NAME')
         
-        # ===== AGREGAR ESTO =====
-        print("\n" + "="*60)
-        print("🔌 INTENTANDO CONECTAR A LA BASE DE DATOS:")
-        print(f"   Host: {host}")
-        print(f"   Port: {port}")
-        print(f"   Database: {database}")
-        print(f"   User: {user}")
-        print("="*60 + "\n")
-        # ========================
-        
         connection = mysql.connector.connect(
             host=host,
             port=port,
