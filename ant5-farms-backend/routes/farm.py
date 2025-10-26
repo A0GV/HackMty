@@ -59,61 +59,34 @@ def get_daily_production(user_id):
     """
     Calcular cuántas hojas producirá el usuario HOY
     Fórmula: (ants_count * 5) + bonus_leaves_earned
-    ---
-    tags:
-      - Farm
-    parameters:
-      - in: path
-        name: user_id
-        type: integer
-        required: true
-        description: ID del usuario
-        example: 1
-    responses:
-      200:
-        description: Producción diaria de hojas
-        schema:
-          type: object
-          properties:
-            success:
-              type: boolean
-            daily_production:
-              type: object
-              properties:
-                ants_count:
-                  type: integer
-                  description: Número de hormigas
-                bonus_leaves_earned:
-                  type: integer
-                  description: Bonus acumulado (días de login)
-                leaves_from_ants:
-                  type: integer
-                  description: Hojas que dan las hormigas (ants * 5)
-                leaves_from_bonus:
-                  type: integer
-                  description: Hojas del bonus
-                total_leaves_today:
-                  type: integer
-                  description: Total de hojas del día
-      404:
-        description: Usuario no encontrado
     """
-    # Obtener datos de la granja
-    query = "SELECT ants_count, bonus_leaves_earned FROM farm WHERE user_id = %s"
-    farm = execute_query(query, (user_id,), fetch=True)
-    
+    # Obtener bonus del usuario desde la tabla farm
+    query_farm = """
+        SELECT bonus_leaves_earned
+        FROM farm
+        WHERE user_id = %s
+    """
+    farm = execute_query(query_farm, (user_id,), fetch=True)
+
     if not farm:
         return jsonify({'success': False, 'message': 'Usuario no encontrado'}), 404
-    
-    farm = farm[0]
-    ants_count = farm['ants_count']
-    bonus_leaves = farm['bonus_leaves_earned']
-    
+
+    bonus_leaves = farm[0]['bonus_leaves_earned']
+
+    # Sumar cantidad total de hormigas del usuario
+    query_ants = """
+        SELECT COALESCE(SUM(cant), 0) AS ants_count
+        FROM ant_farm
+        WHERE user_id = %s
+    """
+    ants_data = execute_query(query_ants, (user_id,), fetch=True)
+    ants_count = ants_data[0]['ants_count'] if ants_data else 0
+
     # Calcular producción
     leaves_from_ants = ants_count * 5
     leaves_from_bonus = bonus_leaves
     total_leaves_today = leaves_from_ants + leaves_from_bonus
-    
+
     return jsonify({
         'success': True,
         'daily_production': {
@@ -124,6 +97,7 @@ def get_daily_production(user_id):
             'total_leaves_today': total_leaves_today
         }
     }), 200
+
 
 
 @farm_bp.route('/<int:user_id>/ants', methods=['POST'])

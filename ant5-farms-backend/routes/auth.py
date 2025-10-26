@@ -2,9 +2,11 @@ from flask import Blueprint, request, jsonify
 from config.db import execute_query
 from datetime import date
 
+from routes.farm import get_daily_production
+
 auth_bp = Blueprint('auth', __name__)
 
-@auth_bp.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['PUT'])
 def login():
     """
     Login de usuario con sistema de bonus diario
@@ -74,14 +76,24 @@ def login():
     user_id = user['id']
     last_login = user.get('last_login_date')
     today = date.today()
-    
+    todayyyy = True
     # Variables para la respuesta
     leaves_earned_today = 0
-    
+    # get_daily_production(user_id)
+
+    # Sumar cantidad total de hormigas del usuario
+    query_ants = """
+        SELECT COALESCE(SUM(cant), 0) AS ants_count
+        FROM ant_farm
+        WHERE user_id = %s
+    """
+    ants_data = execute_query(query_ants, (user_id,), fetch=True)
+    ants_count = ants_data[0]['ants_count'] if ants_data else 0
+    ants_count = ants_count * 2
     # ===== NUEVA LÓGICA: Bonus por día único =====
     if last_login is None or last_login != today:
         # Es un día diferente (o primer login ever)
-        
+        todayyyy = False
         # Obtener la granja actual
         query_farm = "SELECT bonus_leaves_earned, leaves_count FROM farm WHERE user_id = %s"
         farm = execute_query(query_farm, (user_id,), fetch=True)
@@ -91,7 +103,7 @@ def login():
             
             # El bonus incrementa: día 1 = 1 hoja, día 2 = 2 hojas, etc.
             new_bonus_leaves = current_bonus_leaves + 1
-            leaves_earned_today = new_bonus_leaves
+            leaves_earned_today = new_bonus_leaves + ants_count
             
             # Actualizar la granja
             update_farm = """
@@ -115,15 +127,9 @@ def login():
     
     return jsonify({
         'success': True,
-        'user': {
-            'id': user['id'],
-            'username': user['username']
-        },
-        'farm': farm_data[0] if farm_data else None,
-        'bonus_info': {
-            'leaves_earned_today': leaves_earned_today,
-            'total_login_days': farm_data[0]['bonus_leaves_earned'] if farm_data else 0
-        }
+        'id': user['id'],
+        'today_logged' : todayyyy,
+        'leaves_earned_today': leaves_earned_today
     }), 200
 
 @auth_bp.route('/register', methods=['POST'])
