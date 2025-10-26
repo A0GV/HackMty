@@ -12,8 +12,9 @@ struct farm: View {
     
     @State private var showSlotMachine = false // Toggle between hide and show machine
     @State private var leaves:Int = 0 // API Get player num of leaves
-    @State private var numAnts:Int = 10 // API Get DB num of ants
+    @State private var numAnts:Int = 0 // API Get DB num of ants
     @State public var id_usuario:Int = 1 // Temp id usuario fijo
+    @State public var id_ant:Int = 8 // Temp id usuario fijo
     
     // Get user number of leaves and ants for user
     func getNumLeaves() {
@@ -125,7 +126,46 @@ struct farm: View {
         }.resume()
     }
 
-    
+    // Add an ant api call
+    func addAnt(id_ant: Int) {
+        // Fix: user_id comes first, then ant_id in the URL
+        guard let url = URL(string: "http://localhost:5001/api/farm/\(id_usuario)/ants/\(id_ant)") else {
+            print("El endpoint no está disponible")
+            return
+        }
+        
+        // Create PUT request
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            // Check for errors
+            if let error = error {
+                print("Error en la llamada: \(error.localizedDescription)")
+                return
+            }
+            
+            // Validate HTTP response
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("Respuesta no válida del servidor")
+                return
+            }
+            
+            // Check status code - accept both 200 and 204
+            if httpResponse.statusCode == 200 || httpResponse.statusCode == 204 {
+                print("Ant added")
+                
+                // Refresh farm data to get updated ant count
+                DispatchQueue.main.async {
+                    self.getNumLeaves() // This will update both leaves and numAnts
+                }
+            } else {
+                print("Error API: \(httpResponse.statusCode)")
+            }
+        }
+        
+        task.resume()
+    }
     
     var body: some View {
             GeometryReader { geometry in
@@ -248,6 +288,9 @@ struct farm: View {
                             numLeaves: $leaves, numAnts: $numAnts,
                             onLeavesChange: { amount in
                                 updateLeaves(changeAmt: amount)
+                            },
+                            onAntWin: {
+                                addAnt(id_ant: 8) // Add ant with ID 8
                             }
                         )
                         .transition(.scale.combined(with: .opacity))
