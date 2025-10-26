@@ -4,7 +4,6 @@ from flasgger import Swagger
 from routes.auth import auth_bp
 from routes.expenses import expenses_bp
 from routes.farm import farm_bp
-from routes.categories import categories_bp
 from routes.goals import goals_bp
 
 # Crear app
@@ -48,7 +47,6 @@ swagger = Swagger(app, config=swagger_config, template=swagger_template)
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(expenses_bp, url_prefix='/api/expenses')
 app.register_blueprint(farm_bp, url_prefix='/api/farm')
-app.register_blueprint(categories_bp, url_prefix='/api/categories')
 app.register_blueprint(goals_bp, url_prefix='/api/goals')
 
 @app.route('/')

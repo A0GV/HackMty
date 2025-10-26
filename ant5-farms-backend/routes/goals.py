@@ -155,37 +155,5 @@ def update_goals_bulk(user_id):
         execute_query(update_query, (money, user_id, category_id))
     
     return jsonify({
-        'success': True, 
-        'message': 'Metas actualizadas exitosamente'
-    }), 200
-
-
-@goals_bp.route('/<int:user_id>/reset', methods=['PUT'])
-def reset_goals(user_id):
-    """
-    Resetear todas las metas a $0 (opcional - por si el usuario quiere empezar de cero)
-    ---
-    tags:
-      - Goals
-    parameters:
-      - in: path
-        name: user_id
-        type: integer
-        required: true
-        description: ID del usuario
-    responses:
-      200:
-        description: Metas reseteadas a $0
-    """
-    # Validar usuario
-    if not execute_query("SELECT id FROM users WHERE id=%s", (user_id,), fetch=True):
-        return jsonify({'success': False, 'message': 'Usuario no existe'}), 404
-    
-    # Resetear todas las metas a 0
-    query = "UPDATE goal SET money = 0.00 WHERE user_id = %s"
-    execute_query(query, (user_id,))
-    
-    return jsonify({
-        'success': True,
-        'message': 'Todas las metas han sido reseteadas a $0'
+        'success': True
     }), 200
