@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SwiftUI
 
 // Helpers relacionados con Data / multipart y resize
 fileprivate extension Data {
@@ -91,7 +92,7 @@ public func uploadReceipt(userId: Int, image: UIImage, serverURL: URL, authToken
 /// - Parameters:
 ///   - resp: diccionario resultante del uploadReceipt (espera key "expense")
 ///   - goalData: instancia de GoalData (ObservableObject)
-   func applyExpenseToGoalData(from resp: [String: Any], goalData: GoalData) async {
+func applyExpenseToGoalData(from resp: [String: Any], goalData: GoalData) async {
     // Helper local para parsear amount en Double
     func parseAmount(_ any: Any?) -> Double? {
         if any == nil { return nil }

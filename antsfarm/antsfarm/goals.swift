@@ -13,7 +13,7 @@ struct goals: View {
     // Calculated weekly total
 //    @State public var weeklyBudget: Double = 0 //foodAmt + drinkAmt + subsAmt + smallPayAmt + transportAmt + otherAmt
     var weeklyBudget: Double {
-            goalData.foodAmt + goalData.drinkAmt + goalData.subsAmt + goalData.smallPayAmt + goalData.transportAmt + goalData.otherAmt
+            goalData.ExpectfoodAmt + goalData.ExpectdrinkAmt + goalData.ExpectsubsAmt + goalData.ExpectsmallPayAmt + goalData.ExpecttransportAmt + goalData.ExpectotherAmt
         }
 //    // Calculates user total budget
 //    func loadBudget() {

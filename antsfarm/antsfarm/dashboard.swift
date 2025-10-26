@@ -31,6 +31,33 @@ struct dashboard: View {
         ]
     }
     
+    // MARK: - Porcentajes calculados
+    private var totalSpent: Double {
+        goalData.foodAmt + goalData.drinkAmt + goalData.subsAmt + goalData.smallPayAmt + goalData.transportAmt + goalData.otherAmt
+    }
+    
+    private var totalBudget: Double {
+        goalData.ExpectfoodAmt + goalData.ExpectdrinkAmt + goalData.ExpectsubsAmt + goalData.ExpectsmallPayAmt + goalData.ExpecttransportAmt + goalData.ExpectotherAmt
+    }
+    
+    private var expendedPct: Double {
+        guard totalBudget > 0 else { return 0 }
+        return (totalSpent / totalBudget) * 100
+    }
+    
+    private var savedPct: Double {
+        max(0, 100 - expendedPct)
+    }
+    
+    // Formateo amigable (sin decimales si son enteros, sino 1 decimal)
+    private func formatPct(_ v: Double) -> String {
+        if v.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0f%%", v)
+        } else {
+            return String(format: "%.1f%%", v)
+        }
+    }
+    
     var body: some View {
         ScrollView{
             VStack(spacing: 30) {
@@ -40,13 +67,13 @@ struct dashboard: View {
                     .foregroundColor(CategoryColors.principal)
                     .multilineTextAlignment(.center)
                 
-                // Expended/Saved (sin cambios)
+                // Expended/Saved (ahora dinámicos)
                 HStack(spacing: 24) {
                     VStack {
                         Text("Expended")
                             .font(.system(size: 26, weight: .regular))
                             .foregroundColor(.white)
-                        Text("85%")
+                        Text(formatPct(expendedPct))
                             .font(.system(size: 38, weight: .bold))
                             .foregroundColor(.white)
                     }
@@ -58,7 +85,7 @@ struct dashboard: View {
                         Text("Saved")
                             .font(.system(size: 26, weight: .regular))
                             .foregroundColor(.white)
-                        Text("15%")
+                        Text(formatPct(savedPct))
                             .font(.system(size: 38, weight: .bold))
                             .foregroundColor(.white)
                     }
@@ -66,6 +93,9 @@ struct dashboard: View {
                     .background(CategoryColors.transport)
                     .cornerRadius(12)
                 }
+                
+                // Muestra totales bajo los porcentajes (opcional, útil)
+               
                 
                 Text("Weekly expenses")
                     .font(.system(size: 28, weight: .bold))
@@ -107,6 +137,7 @@ struct dashboard: View {
                     uploading: $uploading,
                     uploadResult: $uploadResult
                 )
+                .environmentObject(goalData) // pasar goalData al subcomponente
                 
                 Spacer()
             }
@@ -146,6 +177,8 @@ private struct ExpensesChart: View {
 
 // Sub-vista que encapsula el PhotoPicker en iOS 17+
 private struct PhotoPickerButton: View {
+    @EnvironmentObject var goalData: GoalData
+
     @Binding var selectedPhotoItem: PhotosPickerItem?
     @Binding var selectedImage: UIImage?
     let currentUserId: Int
@@ -206,6 +239,10 @@ private struct PhotoPickerButton: View {
                             if let message = resp["message"] as? String { print("➡️ message: \(message)") }
                             if let expenseId = resp["expense_id"] { print("➡️ expense_id: \(expenseId)") }
                             if let expense = resp["expense"] { print("➡️ expense: \(expense)") }
+
+                            // --- actualizar GoalData (esto hará que 'expenses' cambie y la Chart se re-renderice)
+                            await applyExpenseToGoalData(from: resp, goalData: goalData)
+                            print("⚡️ goalData after update: food=\(goalData.foodAmt) drink=\(goalData.drinkAmt) subs=\(goalData.subsAmt) transport=\(goalData.transportAmt) smallpay=\(goalData.smallPayAmt) other=\(goalData.otherAmt)")
 
                             await MainActor.run {
                                 uploadResult = "Upload succeeded"
