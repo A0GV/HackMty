@@ -12,19 +12,37 @@ def get_db_connection():
     Lee las credenciales del archivo .env
     """
     try:
+        host = os.getenv('DB_HOST')
+        port = int(os.getenv('DB_PORT'))
+        user = os.getenv('DB_USER')
+        database = os.getenv('DB_NAME')
+        
+        # ===== AGREGAR ESTO =====
+        print("\n" + "="*60)
+        print("🔌 INTENTANDO CONECTAR A LA BASE DE DATOS:")
+        print(f"   Host: {host}")
+        print(f"   Port: {port}")
+        print(f"   Database: {database}")
+        print(f"   User: {user}")
+        print("="*60 + "\n")
+        # ========================
+        
         connection = mysql.connector.connect(
-            host=os.getenv('DB_HOST'),          # ant-farms-db-tec-a8de...
-            port=int(os.getenv('DB_PORT')),     # 25602
-            user=os.getenv('DB_USER'),          # avnadmin
-            password=os.getenv('DB_PASSWORD'),  # tu password
-            database=os.getenv('DB_NAME'),      # defaultdb
+            host=host,
+            port=port,
+            user=user,
+            password=os.getenv('DB_PASSWORD'),
+            database=database,
             ssl_disabled=False if os.getenv('DB_SSL') == 'True' else True
         )
         
         if connection.is_connected():
+            # ===== AGREGAR ESTO =====
+            print("✅ CONEXIÓN EXITOSA A LA BASE DE DATOS\n")
+            # ========================
             return connection
     except Error as e:
-        print(f"Error conectando a MySQL: {e}")
+        print(f"❌ Error conectando a MySQL: {e}\n")
         return None
 
 def execute_query(query, params=None, fetch=False):
