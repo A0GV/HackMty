@@ -37,7 +37,7 @@ swagger_template = {
             "url": "https://github.com/tu-repo"
         }
     },
-    "host": "localhost:5000",
+    "host": "localhost:5001",
     "basePath": "/",
     "schemes": ["http"],
 }
@@ -93,4 +93,4 @@ def health():
     return {'status': 'healthy'}, 200
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)
