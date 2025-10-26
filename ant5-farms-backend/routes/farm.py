@@ -176,9 +176,10 @@ def add_ant(user_id, ant_id):
         execute_query(insert_query, (user_id, ant_id))
         new_quantity = 1
     
-    return jsonify({
+    '''return jsonify({
         'success': True
-    }), 200
+    }), 200'''
+    return '', 204
 
 
 # @farm_bp.route('/<int:user_id>/leaves', methods=['POST'])

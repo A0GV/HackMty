@@ -17,7 +17,9 @@ struct SlotMachineView: View {
     
     let items = RouletteData.items // To iterate between possible rewards
     
-    var onLeavesChange: (Int) -> Void // Function to call API
+    // API call functs to change leaves and ants
+    var onLeavesChange: (Int) -> Void 
+    var onAntWin: () -> Void
     
     var body: some View {
         VStack {
@@ -144,7 +146,7 @@ struct SlotMachineView: View {
             // Call API to add leaves
             onLeavesChange(amount)
         case .ant:
-            numAnts += 1
+            onAntWin()
             //print("Got ant - implement ant API call later")
         case .nothing:
             // No reward, do nothing
@@ -169,9 +171,13 @@ struct SlotMachineView: View {
 
 #Preview {
     SlotMachineView(
-        numLeaves: .constant(200), numAnts: .constant(1),
+        numLeaves: .constant(200),
+        numAnts: .constant(1),
         onLeavesChange: { amount in
             print("Should update leaves by: \(amount)")
+        },
+        onAntWin: {
+            print("Should add ant!")
         }
     )
 }
